@@ -11,6 +11,8 @@ import DocumentsPage from './pages/DocumentsPage';
 import TripsPage from './pages/TripsPage';
 import TripOtpPage from './pages/TripOtpPage';
 import CarsPage from './pages/CarsPage';
+import CarDetailPage from './pages/CarDetailPage';
+import { usePageViews } from './utils/analytics';
 import BookPage from './pages/BookPage';
 import { BOOKING_ENABLED } from './utils/features';
 
@@ -21,6 +23,7 @@ function Protected({ children }) {
 export default function App() {
   const { checking } = useAuth();
   const { pathname } = useLocation();
+  usePageViews();
 
   if (checking) {
     return <div className="flex h-dvh items-center justify-center text-sm text-slate-500">Loading...</div>;
@@ -45,6 +48,7 @@ export default function App() {
         <Route element={<PageLayout />}>
           {/* Open to everyone — no login needed to browse cars. */}
           <Route path="/cars" element={<CarsPage />} />
+          <Route path="/cars/:id" element={<CarDetailPage />} />
           {/* Online booking is hidden unless VITE_ENABLE_BOOKING=true (utils/features.js). */}
           <Route
             path="/book"

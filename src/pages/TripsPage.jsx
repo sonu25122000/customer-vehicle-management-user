@@ -37,11 +37,12 @@ function TripCard({ trip, verified, onStart, onRate }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="grid grid-cols-[7.5rem_1fr] border-b border-slate-100 sm:grid-cols-[9rem_1fr]">
-        <div className="relative h-full min-h-28 overflow-hidden bg-slate-100">
+      <div className="grid grid-cols-[8rem_1fr] items-center border-b border-slate-100 sm:grid-cols-[10.5rem_1fr]">
+        {/* Same 4:3 frame as every car photo on the site. */}
+        <div className="relative m-3 aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
           <CarThumb vehicle={trip.vehicle} />
         </div>
-        <div className="flex min-w-0 flex-col justify-between gap-2 px-4 py-3 sm:px-5">
+        <div className="flex min-w-0 flex-col justify-between gap-2 py-3 pl-1 pr-4 sm:pr-5">
           <div className="min-w-0">
             <p className="truncate font-bold leading-snug text-slate-900">
               {vehicleName(trip.vehicle) || 'Car'} {trip.vehicle?.year && <span className="font-medium text-slate-500">{trip.vehicle.year}</span>}
@@ -93,23 +94,23 @@ function TripCard({ trip, verified, onStart, onRate }) {
       )}
       {trip.status === 'Completed' && (
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
-          {trip.customerRating ? (
+          {trip.customerRatedAt ? (
             <p className="flex items-center gap-1.5 text-sm text-slate-600">
-              You rated this car
+              You rated this trip
               <span className="flex">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <StarIcon key={n} className={`h-4 w-4 ${n <= trip.customerRating ? 'text-amber-400' : 'text-slate-200'}`} />
+                  <StarIcon key={n} className={`h-4 w-4 ${n <= trip.rating ? 'text-amber-400' : 'text-slate-200'}`} />
                 ))}
               </span>
             </p>
           ) : (
             <>
-              <p className="text-xs text-slate-500">How was your ride?</p>
+              <p className="text-xs text-slate-500">How was your trip?</p>
               <button
                 onClick={() => onRate(trip)}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-50 px-4 py-2 text-sm font-bold text-amber-700 ring-1 ring-amber-200 hover:bg-amber-100"
               >
-                <StarIcon className="h-4 w-4" /> Rate this car
+                <StarIcon className="h-4 w-4" /> Rate your trip
               </button>
             </>
           )}

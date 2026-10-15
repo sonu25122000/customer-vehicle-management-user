@@ -336,3 +336,56 @@ export function FlagIcon(props) {
     </Svg>
   );
 }
+
+export function InstagramIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M17.2 6.8h.01" strokeWidth="2.6" />
+    </Svg>
+  );
+}
+
+export function QuoteIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M9.6 6C6.5 7.2 4.5 9.9 4.5 13.4V18h5.6v-5.6H7.4c0-2 1.1-3.6 3-4.4L9.6 6Zm9 0c-3.1 1.2-5.1 3.9-5.1 7.4V18h5.6v-5.6h-2.7c0-2 1.1-3.6 3-4.4L18.6 6Z" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  );
+}
+
+export function FilterIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M4 6h16M7 12h10M10 18h4" />
+    </Svg>
+  );
+}
+
+export function ListIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" strokeWidth="2" />
+    </Svg>
+  );
+}
+
+export function GridIcon(props) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+    </Svg>
+  );
+}

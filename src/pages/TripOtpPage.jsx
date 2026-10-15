@@ -181,7 +181,7 @@ export default function TripOtpPage({ mode }) {
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center gap-4 border-b border-slate-100 p-4">
-          <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
+          <div className="aspect-[4/3] w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
             {photo ? (
               <img src={vehiclePhotoUrl(photo._id)} alt={vehicleName(trip.vehicle)} className="h-full w-full object-cover" />
             ) : (

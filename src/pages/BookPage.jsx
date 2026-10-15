@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { fetchVehicles, fetchProfile, createBooking } from '../api/portal';
+import { fetchVehicles, fetchProfile, createBooking, validateCoupon } from '../api/portal';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Carousel from '../components/Carousel';
@@ -313,9 +313,78 @@ function SummaryRow({ label, children }) {
   );
 }
 
-function ConfirmStep({ customer, profile, vehicle, dates, onBack, onConfirm, submitting }) {
+// Coupon code box. The code is checked on the server (valid, live, for this customer, uses left) and
+// the discount comes back from there; the booking checks it again when it's confirmed.
+function CouponBox({ vehicle, dates, coupon, setCoupon }) {
+  const [code, setCode] = useState(coupon?.code || '');
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState('');
+
+  async function apply(e) {
+    e.preventDefault();
+    if (!code.trim()) return;
+    setChecking(true);
+    setError('');
+    try {
+      setCoupon(await validateCoupon(code.trim(), { vehicle: vehicle._id, ...dates }));
+    } catch (err) {
+      setCoupon(null);
+      setError(errorMessage(err, 'This coupon code is not valid'));
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  if (coupon) {
+    return (
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm ring-1 ring-emerald-200">
+        <p className="text-emerald-800">
+          <span className="font-mono font-bold">{coupon.code}</span> applied — you save <span className="font-bold">{formatMoney(coupon.discount)}</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setCoupon(null);
+            setCode('');
+          }}
+          className="cursor-pointer text-xs font-bold text-emerald-700 hover:underline"
+        >
+          Remove
+        </button>
+      </div>
+    );
+  }
+  return (
+    <form onSubmit={apply} className="mt-3">
+      <div className="flex gap-2">
+        <input
+          value={code}
+          onChange={(e) => {
+            setCode(e.target.value.toUpperCase());
+            setError('');
+          }}
+          placeholder="Coupon code"
+          aria-label="Coupon code"
+          maxLength={30}
+          className={`${inputClass} min-w-0 flex-1 font-mono uppercase`}
+        />
+        <button
+          type="submit"
+          disabled={checking || !code.trim()}
+          className="cursor-pointer rounded-lg bg-navy px-4 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {checking ? 'Checking...' : 'Apply'}
+        </button>
+      </div>
+      {error && <p className="mt-1.5 text-xs font-medium text-red-600">{error}</p>}
+    </form>
+  );
+}
+
+function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onBack, onConfirm, submitting }) {
   const days = rentalDays(dates.startDate, dates.startTime, dates.endDate, dates.endTime);
-  const total = vehicle.pricePerDay ? days * vehicle.pricePerDay : 0;
+  const gross = vehicle.pricePerDay ? days * vehicle.pricePerDay : 0;
+  const total = coupon ? coupon.payable : gross;
   const onFile = profile?.documents?.map((d) => d.type) || [];
   const missingDocs = DOCUMENTS.filter((d) => !onFile.includes(d.type));
 
@@ -365,7 +434,7 @@ function ConfirmStep({ customer, profile, vehicle, dates, onBack, onConfirm, sub
         {/* Car */}
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr]">
-            <Carousel photos={vehicle.photos} alt={vehicleName(vehicle)} className="aspect-[16/10] sm:aspect-auto sm:h-full sm:min-h-56" />
+            <Carousel photos={vehicle.photos} alt={vehicleName(vehicle)} />
             <div className="p-5 sm:p-6">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600">{vehicle.vehicleType}</p>
               <h2 className="text-xl font-extrabold text-slate-900">{vehicle.model}</h2>
@@ -402,7 +471,9 @@ function ConfirmStep({ customer, profile, vehicle, dates, onBack, onConfirm, sub
               {formatMoney(vehicle.pricePerDay)} × {days}
             </SummaryRow>
           )}
+          {coupon && <SummaryRow label={`Coupon ${coupon.code}`}>−{formatMoney(coupon.discount)}</SummaryRow>}
         </div>
+        {gross > 0 && <CouponBox vehicle={vehicle} dates={dates} coupon={coupon} setCoupon={setCoupon} />}
         <div className="mt-2 flex items-center justify-between rounded-xl bg-navy px-4 py-3 text-white">
           <span className="text-sm font-semibold text-blue-100">Total Amount</span>
           <span className="text-xl font-extrabold">{total ? formatMoney(total) : 'To be confirmed'}</span>
@@ -422,6 +493,7 @@ export default function BookPage() {
   const [profile, setProfile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [booked, setBooked] = useState(null);
+  const [coupon, setCoupon] = useState(null);
 
   useEffect(() => {
     fetchProfile()
@@ -436,11 +508,13 @@ export default function BookPage() {
   async function handleConfirm() {
     setSubmitting(true);
     try {
-      const result = await createBooking({ vehicle: vehicle._id, ...dates });
+      const result = await createBooking({ vehicle: vehicle._id, ...dates, couponCode: coupon?.code });
       setBooked(result.data);
       toast.success('Booking confirmed!');
     } catch (err) {
       toast.error(errorMessage(err, 'Booking failed'));
+      // A coupon that stopped being valid (expired / used up meanwhile) has to be applied again.
+      if (/coupon/i.test(errorMessage(err, ''))) setCoupon(null);
       // The car may have just been taken — send them back to pick again.
       if (err?.response?.status === 409) {
         setVehicle(null);
@@ -513,6 +587,7 @@ export default function BookPage() {
               // A car picked for other dates may not be free for the new ones.
               setDates(update);
               setVehicle(null);
+              setCoupon(null);
             }}
             onBack={() => setStep(0)}
             onNext={() => setStep(2)}
@@ -522,7 +597,10 @@ export default function BookPage() {
           <CarsStep
             dates={dates}
             selected={vehicle}
-            onSelect={setVehicle}
+            onSelect={(v) => {
+              setVehicle(v);
+              setCoupon(null);
+            }}
             onBack={() => setStep(1)}
             onNext={() => vehicle && setStep(3)}
           />
@@ -533,6 +611,8 @@ export default function BookPage() {
             profile={profile}
             vehicle={vehicle}
             dates={dates}
+            coupon={coupon}
+            setCoupon={setCoupon}
             onBack={() => setStep(2)}
             onConfirm={handleConfirm}
             submitting={submitting}

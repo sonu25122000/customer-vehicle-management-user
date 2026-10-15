@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /trips
+Disallow: /documents
+Disallow: /profile
+Disallow: /change-password
+
+Sitemap: https://customer-vehicle-management-user.vercel.app/sitemap.xml

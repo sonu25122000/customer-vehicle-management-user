@@ -8,7 +8,8 @@ import { StarIcon } from './icons';
 
 const LABELS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
 
-// After a completed trip the customer rates the car once (1–5 stars, optional comment).
+// After a completed trip the customer rates it once (1–5 stars, optional review). That one rating covers
+// the trip and the car — it shows on the car's page under "Our Reviews".
 export default function RateTripModal({ trip, onClose, onRated }) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -35,11 +36,11 @@ export default function RateTripModal({ trip, onClose, onRated }) {
   }
 
   return (
-    <Modal title="Rate your ride" onClose={onClose}>
+    <Modal title="Rate your trip" onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
         <p className="text-center text-sm text-slate-600">
-          How was the <span className="font-semibold text-slate-900">{vehicleName(trip.vehicle) || 'car'}</span> on trip{' '}
-          <span className="font-mono text-xs font-semibold">{trip.tripId}</span>?
+          How was your trip <span className="font-mono text-xs font-semibold">{trip.tripId}</span> with the{' '}
+          <span className="font-semibold text-slate-900">{vehicleName(trip.vehicle) || 'car'}</span>?
         </p>
         <div className="flex gap-1.5" onMouseLeave={() => setHover(0)} role="radiogroup" aria-label="Rating">
           {[1, 2, 3, 4, 5].map((n) => (
@@ -63,7 +64,7 @@ export default function RateTripModal({ trip, onClose, onRated }) {
           maxLength={500}
           value={review}
           onChange={(e) => setReview(e.target.value)}
-          placeholder="Anything you'd like to share? (optional)"
+          placeholder="Tell others about the car and your trip (optional) — your review appears on the car's page"
           className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
         />
         <button

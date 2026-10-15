@@ -47,6 +47,26 @@ export function fetchVehicles({ search, limit, startDate, endDate } = {}) {
   return api.get('/portal/vehicles', { params: { search, limit, startDate, endDate } }).then((res) => res.data.data);
 }
 
+// Public — one car (Active cars only).
+export function fetchVehicle(id) {
+  return api.get(`/portal/vehicles/${id}`).then((res) => res.data.data);
+}
+
+// Public — customers' ratings and reviews of one car, newest first.
+export function fetchVehicleReviews(id) {
+  return api.get(`/portal/vehicles/${id}/reviews`).then((res) => res.data.data);
+}
+
+// Public — the home page reviews carousel (managed in the admin portal).
+export function fetchTestimonials() {
+  return api.get('/portal/testimonials').then((res) => res.data.data);
+}
+
+// Public — { cars, completedTrips, ratings, avgRating } for the home page.
+export function fetchSiteStats() {
+  return api.get('/portal/stats').then((res) => res.data.data);
+}
+
 export function vehiclePhotoUrl(photoId) {
   return `/api/portal/vehicle-photos/${photoId}`;
 }
@@ -73,6 +93,13 @@ export function rateTrip(id, rating, review) {
   return api.post(`/portal/trips/${id}/rating`, { rating, review }).then((res) => res.data);
 }
 
+// Checks a coupon code for a booking (car + dates) — resolves to { code, amount, discount, payable }.
+// The booking checks it again.
+export function validateCoupon(code, booking) {
+  return api.post('/portal/coupons/validate', { code, ...booking }).then((res) => res.data.data);
+}
+
+// payload: { vehicle, startDate, startTime, endDate, endTime, couponCode? }
 export function createBooking(payload) {
   return api.post('/portal/trips', payload).then((res) => res.data);
 }

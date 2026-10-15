@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { vehiclePhotoUrl } from '../api/portal';
 import { CarIcon, ChevronLeftIcon, ChevronRightIcon } from './icons';
 
-// Photo carousel for a car: arrows, dots and swipe. `photos` are { _id, slot } from the API.
-export default function Carousel({ photos = [], alt = '', className = 'aspect-[16/10]' }) {
+// Photo carousel for a car: arrows, dots and swipe. `photos` are { _id, slot } from the API. Every car
+// photo on the site is shown in the same 4:3 landscape frame (photos are cropped to 4:3 when uploaded in
+// the admin portal), so cards line up and nothing is cut off differently from page to page.
+export default function Carousel({ photos = [], alt = '', className = 'aspect-[4/3]' }) {
   const [index, setIndex] = useState(0);
   const touchX = useRef(null);
   const count = photos.length;
