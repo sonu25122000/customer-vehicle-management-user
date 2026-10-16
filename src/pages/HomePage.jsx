@@ -213,7 +213,7 @@ export default function HomePage() {
             <MapPinIcon className="h-3.5 w-3.5" /> Self-drive car rentals in Bengaluru
           </p>
           <h1 className="mt-4 max-w-4xl text-[2rem] font-extrabold leading-[1.1] text-navy sm:text-5xl lg:text-6xl">
-            Affordable Car Rentals in <span className="text-blue-600">Whitefield, Bengaluru</span>
+            Affordable Car Rentals in <span className="text-blue-600">Bengaluru</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
             Easy, affordable &amp; flexible. Choose your car, pick your dates, and enjoy the freedom of every journey.
