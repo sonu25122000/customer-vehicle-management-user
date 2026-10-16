@@ -1,10 +1,10 @@
 import { useTripDates, durationText } from '../utils/tripDates';
-import { whatsappLink } from '../utils/contact';
+import { whatsappLink, SUPPORT_PHONE, phoneLink, formatPhone } from '../utils/contact';
 import { formatDate, formatTime, isoDate } from '../utils/format';
 import { TIME_OPTIONS, startTimeOptions, endTimeOptions } from '../utils/timeOptions';
 import { trackEvent } from '../utils/analytics';
 import { CITIES, DEFAULT_CITY } from '../utils/site';
-import { ClockIcon, MapPinIcon, WhatsAppIcon } from './icons';
+import { ClockIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from './icons';
 import DatePicker from './DatePicker';
 
 function enquiryMessage(dates, carName) {
@@ -76,8 +76,8 @@ function DateTimeField({ label, date, time, minDate, rangeStart, allowedTimes, o
 
 // Pick-up and return date + time, then "Book Now", which opens WhatsApp with those dates (and the car, if given)
 // written into the message. `compact` stacks everything for narrow spots (car page sidebar, modal);
-// `showCity` adds the city picker in front (home page).
-export default function EnquiryBar({ carName = '', compact = false, showCity = false, className = '' }) {
+// `showCity` adds the city picker in front (home page). `showCall` puts a Call button next to Book Now.
+export default function EnquiryBar({ carName = '', compact = false, showCity = false, showCall = false, className = '' }) {
   const [dates, setDates] = useTripDates();
   const duration = durationText(dates);
   const startSlots = startTimeOptions(dates.startDate);
@@ -149,21 +149,32 @@ export default function EnquiryBar({ carName = '', compact = false, showCity = f
           onDate={(v) => set('endDate', v)}
           onTime={(v) => set('endTime', v)}
         />
-        <a
-          href={valid ? whatsappLink(enquiryMessage(dates, carName)) : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!valid}
-          onClick={(e) => {
-            if (!valid) e.preventDefault();
-            else trackEvent('whatsapp_enquiry', { car: carName || 'any', days: duration });
-          }}
-          className={`inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-bold shadow-lg transition-colors ${
-            valid ? 'bg-accent text-primary shadow-accent/30 hover:bg-accent-600' : 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
-          }`}
-        >
-          <WhatsAppIcon className="h-5 w-5" /> Book Now
-        </a>
+        <div className="flex gap-2">
+          <a
+            href={valid ? whatsappLink(enquiryMessage(dates, carName)) : undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-disabled={!valid}
+            onClick={(e) => {
+              if (!valid) e.preventDefault();
+              else trackEvent('whatsapp_enquiry', { car: carName || 'any', days: duration });
+            }}
+            className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-6 text-sm font-bold shadow-lg transition-colors ${
+              valid ? 'bg-accent text-primary shadow-accent/30 hover:bg-accent-600' : 'cursor-not-allowed bg-slate-300 text-slate-600 shadow-none'
+            }`}
+          >
+            <WhatsAppIcon className="h-5 w-5" /> Book Now
+          </a>
+          {showCall && SUPPORT_PHONE && (
+            <a
+              href={phoneLink()}
+              aria-label={`Call us on ${formatPhone()}`}
+              className="inline-flex h-11 flex-shrink-0 items-center justify-center gap-2 rounded-full border-2 border-primary bg-white px-5 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white"
+            >
+              <PhoneIcon className="h-4.5 w-4.5" /> Call
+            </a>
+          )}
+        </div>
       </div>
       <p className={`mt-2.5 text-xs font-semibold ${valid ? 'text-slate-600' : 'text-red-600'}`}>
         {valid

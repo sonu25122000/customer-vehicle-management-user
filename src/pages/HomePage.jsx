@@ -185,7 +185,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-primary-50 from-45% via-primary-50/85 via-70% to-primary-50/10 md:from-35% md:via-60%" />
         <Navbar overlay />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-24 text-center sm:px-6 sm:pb-72 sm:pt-32 lg:pb-80">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-24 text-center sm:px-6 sm:pb-28 sm:pt-32 lg:pb-32">
           <p className="flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-accent-700 shadow-sm ring-1 ring-accent-100 backdrop-blur">
             <MapPinIcon className="h-3.5 w-3.5" /> Self-drive car rentals in Bengaluru
           </p>
@@ -200,23 +200,7 @@ export default function HomePage() {
           <div className="mt-8 w-full max-w-6xl text-left">
             <div className="inline-flex rounded-t-xl bg-primary px-5 py-2.5 text-sm font-bold text-white">Self-Drive Rentals · Bengaluru</div>
             <div className="rounded-b-2xl rounded-tr-2xl bg-white p-4 shadow-xl shadow-primary/10 ring-1 ring-slate-200 sm:p-6">
-              <EnquiryBar showCity />
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                to="/cars"
-                className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-primary shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
-              >
-                <CarIcon className="h-4.5 w-4.5" /> Browse Cars
-              </Link>
-              {SUPPORT_PHONE && (
-                <a
-                  href={phoneLink()}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-primary shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
-                >
-                  <PhoneIcon className="h-4.5 w-4.5" /> Call {formatPhone()}
-                </a>
-              )}
+              <EnquiryBar showCity showCall />
             </div>
           </div>
         </div>
