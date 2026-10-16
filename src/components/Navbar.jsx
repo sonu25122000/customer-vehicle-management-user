@@ -6,6 +6,7 @@ import { LogoutIcon, MenuIcon, XIcon, PhoneIcon } from './icons';
 import logo from '../assets/logo.png';
 import { BOOKING_ENABLED } from '../utils/features';
 import { SUPPORT_PHONE, phoneLink, formatPhone } from '../utils/contact';
+import { profilePhotoUrl } from '../api/portal';
 
 const linkClass = ({ isActive }) =>
   `rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-700 hover:text-blue-600'}`;
@@ -67,6 +68,21 @@ export default function Navbar({ overlay = false }) {
             <PhoneIcon className="h-4.5 w-4.5" />
             <span className="hidden whitespace-nowrap sm:inline">{formatPhone()}</span>
           </a>
+        )}
+
+        {customer && (
+          <Link
+            to="/profile"
+            aria-label="My profile"
+            title={customer.name}
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-600 to-navy text-sm font-bold text-white ring-2 ring-white shadow-md sm:h-10 sm:w-10"
+          >
+            {customer.photoVersion ? (
+              <img src={profilePhotoUrl(customer.photoVersion)} alt="" className="h-full w-full object-cover" />
+            ) : (
+              customer.name?.trim().charAt(0).toUpperCase()
+            )}
+          </Link>
         )}
 
         {customer ? (

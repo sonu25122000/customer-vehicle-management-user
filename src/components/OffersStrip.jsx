@@ -47,6 +47,9 @@ export default function OffersStrip({ className = '' }) {
               <p className="mt-2 text-xs text-slate-500">
                 Valid till {formatExpiry(o.expiresAt)}
                 {o.forYou && <span className="ml-1.5 font-semibold text-blue-700">· Just for you</span>}
+                {o.perCustomerLimit ? (
+                  <span className="ml-1.5">· {o.perCustomerLimit === 1 ? 'Once per customer' : `${o.perCustomerLimit} uses per customer`}</span>
+                ) : null}
               </p>
               <p className="mt-1 text-[0.7rem] text-slate-400">Mention the code when you book with us.</p>
             </div>

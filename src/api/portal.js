@@ -32,6 +32,24 @@ export function updateProfile(payload) {
   return api.patch('/portal/profile', payload).then((res) => res.data.data);
 }
 
+// Profile picture (JPEG/PNG/WebP, max 2 MB) — resolves to the updated customer (with photoVersion).
+export function uploadProfilePhoto(file) {
+  const form = new FormData();
+  form.append('photo', file);
+  return api
+    .post('/portal/profile/photo', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then((res) => res.data.data);
+}
+
+export function removeProfilePhoto() {
+  return api.delete('/portal/profile/photo').then((res) => res.data.data);
+}
+
+// <img src> for the signed-in customer's picture; the version changes with every upload.
+export function profilePhotoUrl(version) {
+  return `/api/portal/profile/photo?v=${version}`;
+}
+
 export function uploadDocuments(files) {
   const form = new FormData();
   Object.entries(files).forEach(([type, file]) => {

@@ -3,12 +3,40 @@ import { whatsappLink } from '../utils/contact';
 import { formatDate, formatTime, isoDate } from '../utils/format';
 import { TIME_OPTIONS } from '../utils/timeOptions';
 import { trackEvent } from '../utils/analytics';
-import { CalendarIcon, ClockIcon, WhatsAppIcon } from './icons';
+import { CITIES, DEFAULT_CITY } from '../utils/site';
+import { CalendarIcon, ClockIcon, MapPinIcon, WhatsAppIcon } from './icons';
 
 function enquiryMessage(dates, carName) {
   const when = `from ${formatDate(dates.startDate)}, ${formatTime(dates.startTime)} to ${formatDate(dates.endDate)}, ${formatTime(dates.endTime)}`;
   const duration = durationText(dates);
-  return `Hi Roam Wheels! I'd like to rent ${carName ? `the ${carName}` : 'a car'} ${when}${duration ? ` (${duration})` : ''}. Is it available?`;
+  return `Hi Roam Wheels! I'd like to rent ${carName ? `the ${carName}` : 'a car'} in ${DEFAULT_CITY} ${when}${duration ? ` (${duration})` : ''}. Is it available?`;
+}
+
+// The city we rent cars in — just Bengaluru for now (utils/site.js).
+function CityField() {
+  return (
+    <label className="flex min-w-0 flex-col gap-1.5">
+      <span className="text-sm font-bold text-navy">City</span>
+      <span className="relative">
+        <MapPinIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-600" />
+        <select
+          value={DEFAULT_CITY}
+          onChange={() => {}}
+          aria-label="City"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-8 text-sm font-semibold text-slate-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+        >
+          {CITIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400">
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
+      </span>
+    </label>
+  );
 }
 
 function DateTimeField({ label, date, time, minDate, onDate, onTime }) {
@@ -48,8 +76,9 @@ function DateTimeField({ label, date, time, minDate, onDate, onTime }) {
 }
 
 // Pick-up and return date + time, then "Enquire on WhatsApp" with those dates (and the car, if given)
-// written into the message. `compact` stacks everything for narrow spots (car page sidebar, modal).
-export default function EnquiryBar({ carName = '', compact = false, className = '' }) {
+// written into the message. `compact` stacks everything for narrow spots (car page sidebar, modal);
+// `showCity` adds the city picker in front (home page).
+export default function EnquiryBar({ carName = '', compact = false, showCity = false, className = '' }) {
   const [dates, setDates] = useTripDates();
   const duration = durationText(dates);
   const valid = Boolean(duration);
@@ -74,7 +103,16 @@ export default function EnquiryBar({ carName = '', compact = false, className = 
 
   return (
     <div className={className}>
-      <div className={`grid gap-4 ${compact ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-[1fr_1fr_auto] md:items-end'}`}>
+      <div
+        className={`grid gap-4 ${
+          compact
+            ? 'grid-cols-1'
+            : showCity
+              ? 'grid-cols-1 md:grid-cols-2 md:items-end xl:grid-cols-[10.5rem_1fr_1fr_auto]'
+              : 'grid-cols-1 md:grid-cols-[1fr_1fr_auto] md:items-end'
+        }`}
+      >
+        {showCity && <CityField />}
         <DateTimeField
           label="Pick-Up"
           date={dates.startDate}

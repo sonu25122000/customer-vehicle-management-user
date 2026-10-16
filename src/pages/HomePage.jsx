@@ -9,44 +9,57 @@ import ReviewsCarousel from '../components/ReviewsCarousel';
 import InstagramSection from '../components/InstagramSection';
 import FaqSection from '../components/FaqSection';
 import { WhatsAppButton } from '../components/WhatsAppButton';
-import { CarIcon, ShieldCheckIcon, MapPinIcon, HeadsetIcon, PhoneIcon, MailIcon, ArrowRightIcon, SearchIcon, StarIcon } from '../components/icons';
-import { fetchVehicles, fetchSiteStats } from '../api/portal';
+import {
+  CarIcon,
+  ShieldCheckIcon,
+  MapPinIcon,
+  HeadsetIcon,
+  PhoneIcon,
+  MailIcon,
+  ArrowRightIcon,
+  SearchIcon,
+  StarIcon,
+  RouteIcon,
+  UserIcon,
+  CheckIcon,
+} from '../components/icons';
+import { fetchVehicles } from '../api/portal';
 import { SUPPORT_PHONE, SUPPORT_EMAIL, phoneLink, formatPhone } from '../utils/contact';
+import { SITE_METRICS } from '../utils/site';
 import heroImage from '../assets/login-hero.png';
 
 const FEATURED_COUNT = 6;
+const METRIC_ICONS = [RouteIcon, UserIcon, StarIcon, CheckIcon];
 
-// "1234" -> "1,200+" style rounding for headline numbers; small numbers stay exact.
-function headline(n) {
-  if (n < 50) return String(n);
-  const step = n < 1000 ? 50 : 500;
-  return `${(Math.floor(n / step) * step).toLocaleString('en-IN')}+`;
-}
-
-// The numbers under the headline (Zoomcar-style). Only the ones worth showing appear.
-function HeroStats() {
-  const [stats, setStats] = useState(null);
-  useEffect(() => {
-    fetchSiteStats()
-      .then(setStats)
-      .catch(() => setStats(null));
-  }, []);
-  if (!stats) return <div className="h-6" />;
-  const items = [
-    stats.cars > 0 && { value: stats.cars, label: stats.cars === 1 ? 'Car' : 'Cars' },
-    stats.completedTrips >= 10 && { value: headline(stats.completedTrips), label: 'Trips' },
-    stats.ratings > 0 && stats.avgRating && { value: `${stats.avgRating.toFixed(1)}★`, label: 'Average Rating', star: true },
-  ].filter(Boolean);
-  if (!items.length) return <div className="h-6" />;
+// Our numbers (utils/site.js), in a band overlapping the bottom of the hero.
+function MetricsBand() {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
-      {items.map((s) => (
-        <p key={s.label} className="flex items-baseline gap-1.5 text-slate-600">
-          <span className="text-lg font-extrabold text-navy sm:text-xl">{s.value}</span>
-          <span className="text-sm">{s.label}</span>
-        </p>
-      ))}
-    </div>
+    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-slate-50 to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-navy shadow-2xl shadow-navy/25 lg:grid-cols-4">
+        {SITE_METRICS.map((m, i) => {
+          const Icon = METRIC_ICONS[i % METRIC_ICONS.length];
+          return (
+            <div
+              key={m.label}
+              className={`flex items-center gap-3 px-4 py-5 sm:gap-4 sm:px-7 sm:py-7 ${i % 2 ? 'border-l border-white/10' : ''} ${
+                i >= 2 ? 'border-t border-white/10 lg:border-t-0' : ''
+              } ${i === 2 ? 'lg:border-l' : ''}`}
+            >
+              <span className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 text-blue-200 sm:flex">
+                <Icon className="h-6 w-6" />
+              </span>
+              <div className="min-w-0">
+                <p className="flex items-center gap-1 text-2xl font-extrabold leading-none text-white sm:text-3xl">
+                  {m.value}
+                  {m.star && <StarIcon className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />}
+                </p>
+                <p className="mt-1.5 text-xs font-medium text-blue-100/80 sm:text-sm">{m.label}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -70,11 +83,11 @@ function FeaturedCars() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Our fleet</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Our fleet in Bengaluru</p>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-              Explore <span className="text-blue-600">Our Cars</span>
+              Self-Drive Cars in <span className="text-blue-600">Bengaluru</span>
             </h2>
-            <p className="mt-2 text-sm text-slate-500">Well-kept cars for every trip — pick one and enquire on WhatsApp.</p>
+            <p className="mt-2 text-sm text-slate-500">Well-kept cars for city drives and weekend getaways — pick one and enquire on WhatsApp.</p>
           </div>
           <form
             onSubmit={(e) => {
@@ -106,7 +119,7 @@ function FeaturedCars() {
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {cars === null
             ? [0, 1, 2].map((i) => <div key={i} className="h-96 animate-pulse rounded-2xl bg-white" />)
-            : cars.map((car) => <CarCard key={car._id} car={car} />)}
+            : cars.map((car) => <CarCard key={car._id} car={car} showRating={false} />)}
         </div>
         <div className="mt-8 text-center">
           <Link
@@ -124,9 +137,66 @@ function FeaturedCars() {
 const FEATURES = [
   { icon: CarIcon, title: 'Well-Maintained Cars', text: 'Clean, safe and road-ready vehicles.' },
   { icon: ShieldCheckIcon, title: 'Flexible Rental Plans', text: 'Daily, weekly or long-term — your choice.' },
-  { icon: MapPinIcon, title: 'Easy Pickup & Drop', text: 'Convenient locations and a smooth process.' },
+  { icon: MapPinIcon, title: 'Pickup in Whitefield', text: 'Easy pickup and drop in Whitefield, Bengaluru.' },
   { icon: HeadsetIcon, title: '24/7 Support', text: "We're always here when you need us." },
 ];
+
+// Where renters usually come from / head to — for the "car rental in Bengaluru" section.
+const NEARBY_AREAS = ['Whitefield', 'ITPL', 'Marathahalli', 'Brookefield', 'Kadugodi', 'Hoodi', 'KR Puram', 'Bellandur', 'Sarjapur Road', 'Indiranagar'];
+const GETAWAYS = ['Nandi Hills', 'Mysuru', 'Coorg', 'Chikmagalur', 'Ooty', 'Pondicherry'];
+
+// Who we are and where we operate — written for people searching for a car rental in Bengaluru.
+function BengaluruSection() {
+  return (
+    <section aria-labelledby="bengaluru-heading" className="bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Only in Bengaluru</p>
+          <h2 id="bengaluru-heading" className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
+            Self-Drive Car Rental in <span className="text-blue-600">Whitefield, Bengaluru</span>
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
+            Roam Wheels is a Bengaluru car rental service based in Whitefield. We rent self-drive cars only in Bengaluru (Bangalore) —
+            for office commutes, airport runs, family outings and weekend road trips out of the city. Choose your car, pick your
+            dates and drive it yourself, with no driver and no hidden surprises.
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+            Popular with renters across East Bengaluru, and a great start for getaways to {GETAWAYS.slice(0, -1).join(', ')} and{' '}
+            {GETAWAYS[GETAWAYS.length - 1]}.
+          </p>
+          <Link
+            to="/cars"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-3 text-sm font-bold text-white shadow-lg shadow-navy/20 transition-colors hover:bg-ink"
+          >
+            See cars in Bengaluru <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+          <p className="flex items-center gap-2 text-sm font-bold text-navy">
+            <MapPinIcon className="h-5 w-5 text-blue-600" /> Areas we serve near Whitefield
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {NEARBY_AREAS.map((a) => (
+              <li key={a} className="rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-800 ring-1 ring-blue-100">
+                {a}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 flex items-center gap-2 text-sm font-bold text-navy">
+            <RouteIcon className="h-5 w-5 text-blue-600" /> Weekend getaways from Bengaluru
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {GETAWAYS.map((g) => (
+              <li key={g} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-slate-700">
+                {g}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -138,25 +208,22 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#eef3fb] from-45% via-[#eef3fb]/85 via-70% to-[#eef3fb]/10 md:from-35% md:via-60%" />
         <Navbar overlay />
 
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center px-4 pb-56 pt-24 text-center sm:px-6 sm:pb-72 sm:pt-32 lg:pb-80">
-          <p className="rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-blue-700 shadow-sm ring-1 ring-blue-100 backdrop-blur">
-            Self-drive car rentals
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-56 pt-24 text-center sm:px-6 sm:pb-72 sm:pt-32 lg:pb-80">
+          <p className="flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-blue-700 shadow-sm ring-1 ring-blue-100 backdrop-blur">
+            <MapPinIcon className="h-3.5 w-3.5" /> Self-drive car rentals in Bengaluru
           </p>
-          <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.1] text-navy sm:text-5xl lg:text-6xl">
-            Your Next Journey <span className="text-blue-600">Starts Here</span>
+          <h1 className="mt-4 max-w-4xl text-[2rem] font-extrabold leading-[1.1] text-navy sm:text-5xl lg:text-6xl">
+            Affordable Car Rentals in <span className="text-blue-600">Whitefield, Bengaluru</span>
           </h1>
-          <p className="mt-4 max-w-xl text-base text-slate-600 sm:text-lg">
-            Easy, affordable &amp; flexible — choose your car, choose your dates, and drive without a driver.
+          <p className="mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
+            Easy, affordable &amp; flexible. Choose your car, pick your dates, and enjoy the freedom of every journey.
           </p>
-          <div className="mt-5">
-            <HeroStats />
-          </div>
 
           {/* Booking bar */}
-          <div className="mt-8 w-full max-w-4xl text-left">
-            <div className="inline-flex rounded-t-xl bg-navy px-5 py-2.5 text-sm font-bold text-white">Self-Drive Rentals</div>
+          <div className="mt-8 w-full max-w-6xl text-left">
+            <div className="inline-flex rounded-t-xl bg-navy px-5 py-2.5 text-sm font-bold text-white">Self-Drive Rentals · Bengaluru</div>
             <div className="rounded-b-2xl rounded-tr-2xl bg-white p-4 shadow-xl shadow-navy/10 ring-1 ring-slate-200 sm:p-6">
-              <EnquiryBar />
+              <EnquiryBar showCity />
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
               <Link
@@ -178,6 +245,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <MetricsBand />
+
       <FeaturedCars />
 
       <ReviewsCarousel />
@@ -188,7 +257,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
             Why Choose <span className="text-blue-600">Roam Wheels</span>?
           </h2>
-          <p className="mt-2 text-sm text-slate-500">We make car rentals simple, safe and convenient.</p>
+          <p className="mt-2 text-sm text-slate-500">We make car rentals in Bengaluru simple, safe and convenient.</p>
 
           <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:mt-12 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-10">
             {FEATURES.map(({ icon: Icon, title, text }) => (
@@ -204,6 +273,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <BengaluruSection />
+
       <InstagramSection />
 
       <FaqSection />
@@ -216,7 +287,7 @@ export default function HomePage() {
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-200">Get in touch</p>
           <h2 className="mt-3 text-[1.75rem] font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">Let&apos;s Get You on the Road</h2>
           <p className="mt-3 text-sm text-blue-100/90">
-            Have a question or ready to book? Reach out to us on WhatsApp or give us a call — we&apos;ll get back to you instantly.
+            Need a self-drive car in Bengaluru? Reach out to us on WhatsApp or give us a call — we&apos;ll get back to you instantly.
           </p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <WhatsAppButton />

@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { errorMessage } from '../api/client';
-import { UserIcon, LockIcon, EyeIcon, PhoneIcon, MailIcon, ShieldCheckIcon } from '../components/icons';
+import { UserIcon, LockIcon, EyeIcon, PhoneIcon, MailIcon, ShieldCheckIcon, ArrowLeftIcon, CarIcon } from '../components/icons';
 import heroImage from '../assets/login-hero.png';
 import logo from '../assets/logo.png';
 
@@ -54,14 +54,27 @@ function PasswordInput({ value, onChange, autoComplete, placeholder = 'Enter you
   );
 }
 
+const pillClass =
+  'inline-flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-navy shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white hover:text-blue-700';
+
 function AuthShell({ title, subtitle, children, footer }) {
   return (
-    <div className="relative flex min-h-dvh items-start justify-center overflow-y-auto bg-slate-100 px-4 py-8">
+    <div className="relative flex min-h-dvh flex-col items-center overflow-y-auto bg-slate-100 px-4 pb-8 pt-4 sm:pt-6">
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${heroImage})` }} />
       <div className="absolute inset-0 bg-white/10" />
 
-      <div className="relative z-10 w-full max-w-md">
-        <Link to="/" className="mx-auto mb-4 block w-fit">
+      {/* Always a clear way back to the site — not just the logo. */}
+      <nav aria-label="Site" className="relative z-10 flex w-full max-w-5xl items-center justify-between gap-3">
+        <Link to="/" className={pillClass}>
+          <ArrowLeftIcon className="h-4 w-4" /> Back to Home
+        </Link>
+        <Link to="/cars" className={pillClass}>
+          <CarIcon className="h-4 w-4" /> <span className="hidden sm:inline">Browse</span> Cars
+        </Link>
+      </nav>
+
+      <div className="relative z-10 mt-4 w-full max-w-md">
+        <Link to="/" className="mx-auto mb-4 block w-fit" aria-label="Roam Wheels home">
           <img src={logo} alt="Roam Wheels" className="h-20 w-auto drop-shadow-[0_1px_6px_rgba(255,255,255,0.9)]" />
         </Link>
 
@@ -80,6 +93,12 @@ function AuthShell({ title, subtitle, children, footer }) {
             <ShieldCheckIcon className="h-3.5 w-3.5" /> Rent &middot; Roam &middot; Repeat
           </p>
         </div>
+
+        <p className="mt-4 text-center text-sm font-semibold text-navy">
+          <Link to="/" className="rounded-full bg-white/85 px-4 py-2 shadow-sm ring-1 ring-slate-200 backdrop-blur hover:bg-white hover:text-blue-700">
+            Just looking? Continue to the home page &rarr;
+          </Link>
+        </p>
       </div>
     </div>
   );

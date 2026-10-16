@@ -1,14 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { fetchProfile } from '../api/portal';
+import { fetchProfile, profilePhotoUrl, removeProfilePhoto, uploadProfilePhoto } from '../api/portal';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ProfileForm from '../components/ProfileForm';
 import StatusChip from '../components/StatusChip';
 import { DOCUMENTS, documentStatus, verificationMessage, verificationSummary } from '../utils/documents';
-import { IdCardIcon, LicenseIcon, CameraIcon, PencilIcon, UserIcon, PhoneIcon, MailIcon, StarIcon, LogoutIcon, LockIcon } from '../components/icons';
+import { compressImage } from '../utils/compressImage';
+import {
+  IdCardIcon,
+  LicenseIcon,
+  CameraIcon,
+  PencilIcon,
+  UserIcon,
+  PhoneIcon,
+  MailIcon,
+  StarIcon,
+  LogoutIcon,
+  LockIcon,
+  EyeIcon,
+  KeyIcon,
+} from '../components/icons';
 
 const DOCUMENT_ICONS = { aadhaar: IdCardIcon, drivingLicence: LicenseIcon, selfie: CameraIcon };
 
@@ -21,10 +35,17 @@ function initials(name = '') {
     .join('');
 }
 
-// Avatar with a progress ring showing how many of the 3 verification documents are verified.
-function Avatar({ name, progress }) {
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+// Avatar with a progress ring showing how many of the 3 verification documents are verified. Shows the
+// customer's profile picture when they've uploaded one; the camera button picks a new one.
+function Avatar({ name, progress, photoVersion, uploading, onPick }) {
   const r = 46;
   const c = 2 * Math.PI * r;
+  // The version whose image failed to load (e.g. storage unavailable) — falls back to the initials.
+  const [brokenVersion, setBrokenVersion] = useState(null);
+  const showPhoto = photoVersion && brokenVersion !== photoVersion;
   return (
     <div className="relative h-28 w-28">
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
@@ -42,10 +63,114 @@ function Avatar({ name, progress }) {
           className="transition-[stroke-dashoffset] duration-700"
         />
       </svg>
-      <div className="absolute inset-2.5 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-navy text-3xl font-extrabold text-white">
-        {initials(name) || <UserIcon className="h-10 w-10" />}
+      <div className="absolute inset-2.5 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-600 to-navy text-3xl font-extrabold text-white">
+        {showPhoto ? (
+          <img src={profilePhotoUrl(photoVersion)} alt={name} className="h-full w-full object-cover" onError={() => setBrokenVersion(photoVersion)} />
+        ) : (
+          initials(name) || <UserIcon className="h-10 w-10" />
+        )}
+        {uploading && (
+          <span className="absolute inset-0 flex items-center justify-center bg-navy/60">
+            <span className="h-7 w-7 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          </span>
+        )}
       </div>
+      <label
+        className={`absolute bottom-0.5 right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-blue-600 shadow-md ring-1 ring-slate-200 transition-colors hover:bg-blue-50 ${
+          uploading ? 'pointer-events-none opacity-60' : 'cursor-pointer'
+        }`}
+        title={photoVersion ? 'Change photo' : 'Add a profile photo'}
+      >
+        <CameraIcon className="h-4.5 w-4.5" />
+        <span className="sr-only">{photoVersion ? 'Change profile photo' : 'Add a profile photo'}</span>
+        <input
+          type="file"
+          accept={PHOTO_TYPES.join(',')}
+          className="sr-only"
+          disabled={uploading}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (file) onPick(file);
+          }}
+        />
+      </label>
     </div>
+  );
+}
+
+function PasswordField({ label, value, onChange, autoComplete, placeholder }) {
+  const [show, setShow] = useState(false);
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="relative">
+        <LockIcon className="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
+        <input
+          type={show ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required
+          minLength={6}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 outline-none transition-colors focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? 'Hide password' : 'Show password'}
+          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-slate-600"
+        >
+          <EyeIcon off={show} className="h-4.5 w-4.5" />
+        </button>
+      </span>
+    </label>
+  );
+}
+
+// Change password: current one, then the new one twice.
+function ChangePasswordForm({ onDone, onCancel }) {
+  const { changePassword } = useAuth();
+  const [form, setForm] = useState({ current: '', password: '', confirm: '' });
+  const [saving, setSaving] = useState(false);
+  const set = (field) => (value) => setForm((f) => ({ ...f, [field]: value }));
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (form.password.length < 6) return toast.error('New password must be at least 6 characters');
+    if (form.password !== form.confirm) return toast.error('New passwords do not match');
+    if (form.password === form.current) return toast.error('Choose a new password that is different from the current one');
+    setSaving(true);
+    try {
+      await changePassword(form.current, form.password);
+      toast.success('Password updated');
+      onDone();
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not update your password'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <PasswordField label="Current password" value={form.current} onChange={set('current')} autoComplete="current-password" placeholder="Your current password" />
+      <PasswordField label="New password" value={form.password} onChange={set('password')} autoComplete="new-password" placeholder="At least 6 characters" />
+      <PasswordField label="Confirm new password" value={form.confirm} onChange={set('confirm')} autoComplete="new-password" placeholder="Re-enter the new password" />
+      <div className="mt-1 flex justify-end gap-3">
+        <button type="button" onClick={onCancel} disabled={saving} className="cursor-pointer rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? 'Saving...' : 'Update password'}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -80,10 +205,50 @@ function Section({ title, subtitle, action, children }) {
 }
 
 export default function ProfilePage() {
-  const { logout } = useAuth();
+  const { logout, setCustomer } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  // The picture is shrunk in the browser first, then has to be an image under 2 MB.
+  async function handlePhoto(file) {
+    if (!PHOTO_TYPES.includes(file.type)) {
+      toast.error('Choose a JPEG, PNG or WebP image');
+      return;
+    }
+    setPhotoBusy(true);
+    try {
+      const small = await compressImage(file, { maxDimension: 800, targetBytes: 500 * 1024 });
+      if (small.size > MAX_PHOTO_BYTES) {
+        toast.error('This photo is too large — the maximum is 2 MB');
+        return;
+      }
+      const saved = await uploadProfilePhoto(small);
+      setProfile((p) => ({ ...p, ...saved }));
+      setCustomer((c) => (c ? { ...c, ...saved } : c));
+      toast.success('Profile photo updated');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not upload your photo'));
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  async function handleRemovePhoto() {
+    setPhotoBusy(true);
+    try {
+      const saved = await removeProfilePhoto();
+      setProfile((p) => ({ ...p, ...saved }));
+      setCustomer((c) => (c ? { ...c, ...saved } : c));
+      toast.success('Profile photo removed');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not remove your photo'));
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   useEffect(() => {
     fetchProfile()
@@ -119,7 +284,23 @@ export default function ProfilePage() {
         <aside className="flex flex-col gap-4 lg:sticky lg:top-28">
           <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:grid-cols-[1.3fr_1fr] lg:grid-cols-1">
             <div className="flex flex-col items-center justify-center gap-3 px-5 py-6">
-              <Avatar name={profile.name} progress={approvedCount / DOCUMENTS.length} />
+              <Avatar
+                name={profile.name}
+                progress={approvedCount / DOCUMENTS.length}
+                photoVersion={profile.photoVersion}
+                uploading={photoBusy}
+                onPick={handlePhoto}
+              />
+              {profile.photoVersion && (
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  disabled={photoBusy}
+                  className="-mt-1 cursor-pointer text-xs font-semibold text-slate-500 hover:text-red-600 disabled:cursor-not-allowed"
+                >
+                  Remove photo
+                </button>
+              )}
               <button
                 onClick={() => setEditing(true)}
                 className="flex cursor-pointer items-center gap-2 text-lg font-bold text-slate-900 hover:text-blue-600"
@@ -227,6 +408,26 @@ export default function ProfilePage() {
             </div>
           </Section>
 
+          <Section title="Login & security" subtitle="Keep your account safe — use a password you don't use anywhere else.">
+            <div className="divide-y divide-dashed divide-slate-200">
+              <Row
+                icon={KeyIcon}
+                title="Password"
+                right={
+                  <button
+                    type="button"
+                    onClick={() => setChangingPassword(true)}
+                    className="cursor-pointer rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-bold text-blue-600 transition-colors hover:border-blue-200 hover:bg-blue-50"
+                  >
+                    Change
+                  </button>
+                }
+              >
+                <span className="tracking-[0.3em]">••••••••</span>
+                <span className="block text-xs text-slate-400">You log in with +91 {profile.mobile1} and this password</span>
+              </Row>
+            </div>
+          </Section>
         </div>
       </div>
 
@@ -250,6 +451,11 @@ export default function ProfilePage() {
         </Modal>
       )}
 
+      {changingPassword && (
+        <Modal title="Change password" onClose={() => setChangingPassword(false)}>
+          <ChangePasswordForm onDone={() => setChangingPassword(false)} onCancel={() => setChangingPassword(false)} />
+        </Modal>
+      )}
     </div>
   );
 }

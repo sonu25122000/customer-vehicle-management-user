@@ -7,6 +7,10 @@ import { whatsappLink } from '../utils/contact';
 // distance) points the customer to the team rather than stating figures.
 const FAQS = [
   {
+    q: 'Which cities do you rent cars in?',
+    a: 'Only Bengaluru (Bangalore). Our cars are parked in and around Whitefield — each car’s page shows its parking location on the map. Pick-up and drop-off are in Bengaluru — ask our team about trips outside the city.',
+  },
+  {
     q: 'How do I book a car?',
     a: 'Pick your pick-up and return dates, choose a car, and tap “Enquire on WhatsApp” — your dates and the car are filled into the message. Our team confirms availability and the price, and books the trip for you. You can also call us.',
   },

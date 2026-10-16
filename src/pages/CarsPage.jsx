@@ -6,6 +6,7 @@ import OffersStrip from '../components/OffersStrip';
 import EnquiryBar from '../components/EnquiryBar';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CarIcon, SearchIcon, XIcon, FilterIcon, ListIcon, GridIcon } from '../components/icons';
+import { parkingArea } from '../utils/location';
 
 const SORTS = [
   { key: 'popular', label: 'Top rated' },
@@ -18,7 +19,10 @@ const FILTER_GROUPS = [
   { key: 'transmission', label: 'Transmission' },
   { key: 'fuel', label: 'Fuel' },
   { key: 'vehicleType', label: 'Type' },
+  { key: 'parking', label: 'Parking location', get: (c) => parkingArea(c.parkingLocation), keepCase: true },
 ];
+// A car's value for a filter group.
+const valueOf = (group, car) => (group.get ? group.get(car) : car[group.key]);
 const EMPTY_FILTERS = Object.fromEntries(FILTER_GROUPS.map((g) => [g.key, []]));
 
 function sortCars(cars, sort) {
@@ -33,7 +37,7 @@ function sortCars(cars, sort) {
 
 function FilterPanel({ cars, filters, setFilters }) {
   const activeCount = Object.values(filters).flat().length;
-  const hasChoices = FILTER_GROUPS.some((g) => new Set(cars.map((c) => c[g.key]).filter(Boolean)).size > 1);
+  const hasChoices = FILTER_GROUPS.some((g) => new Set(cars.map((c) => valueOf(g, c)).filter(Boolean)).size > 1);
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
       <div className="flex items-center justify-between">
@@ -48,7 +52,7 @@ function FilterPanel({ cars, filters, setFilters }) {
       </div>
       {!hasChoices && !activeCount && <p className="mt-3 text-sm text-slate-500">Filters appear here once there are more cars to choose between.</p>}
       {FILTER_GROUPS.map((group) => {
-        const options = [...new Set(cars.map((c) => c[group.key]).filter(Boolean))].sort();
+        const options = [...new Set(cars.map((c) => valueOf(group, c)).filter(Boolean))].sort();
         if (options.length < 2 && !filters[group.key].length) return null;
         return (
           <fieldset key={group.key} className="mt-5">
@@ -56,7 +60,7 @@ function FilterPanel({ cars, filters, setFilters }) {
             <div className="mt-2 flex flex-col gap-1">
               {options.map((opt) => {
                 const checked = filters[group.key].includes(opt);
-                const count = cars.filter((c) => c[group.key] === opt).length;
+                const count = cars.filter((c) => valueOf(group, c) === opt).length;
                 return (
                   <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
                     <input
@@ -70,7 +74,7 @@ function FilterPanel({ cars, filters, setFilters }) {
                       }
                       className="h-4.5 w-4.5 cursor-pointer rounded border-slate-300 text-navy focus:ring-blue-500"
                     />
-                    <span className="flex-1 uppercase tracking-wide">{opt}</span>
+                    <span className={`flex-1 ${group.keepCase ? '' : 'uppercase tracking-wide'}`}>{opt}</span>
                     <span className="text-xs text-slate-400">{count}</span>
                   </label>
                 );
@@ -118,7 +122,7 @@ export default function CarsPage() {
 
   const visible = useMemo(() => {
     if (!cars) return null;
-    const filtered = cars.filter((c) => FILTER_GROUPS.every((g) => !filters[g.key].length || filters[g.key].includes(c[g.key])));
+    const filtered = cars.filter((c) => FILTER_GROUPS.every((g) => !filters[g.key].length || filters[g.key].includes(valueOf(g, c))));
     return sortCars(filtered, sort);
   }, [cars, filters, sort]);
   const activeFilters = Object.values(filters).flat().length;
@@ -135,7 +139,7 @@ export default function CarsPage() {
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-navy sm:text-2xl">Our Cars</h1>
+            <h1 className="text-xl font-extrabold text-navy sm:text-2xl">Self-Drive Cars on Rent in Bengaluru</h1>
             <p className="text-sm text-slate-500">Found one you like? Enquire on WhatsApp with your dates and we&apos;ll set it up for you.</p>
           </div>
           <div className="relative w-full sm:max-w-sm">

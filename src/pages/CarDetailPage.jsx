@@ -3,10 +3,47 @@ import { Link, useParams } from 'react-router-dom';
 import Carousel from '../components/Carousel';
 import EnquiryBar from '../components/EnquiryBar';
 import { WhatsAppButton } from '../components/WhatsAppButton';
-import { ArrowLeftIcon, CarIcon, FuelIcon, GearIcon, StarIcon, CalendarIcon, PhoneIcon, QuoteIcon } from '../components/icons';
+import { ArrowLeftIcon, CarIcon, FuelIcon, GearIcon, StarIcon, CalendarIcon, PhoneIcon, QuoteIcon, MapPinIcon, ArrowRightIcon } from '../components/icons';
 import { fetchVehicle, fetchVehicleReviews } from '../api/portal';
 import { formatMoney, vehicleName } from '../utils/format';
 import { SUPPORT_PHONE, phoneLink, formatPhone } from '../utils/contact';
+import { mapsEmbedUrl, mapsLink, parkingArea } from '../utils/location';
+import { DEFAULT_TITLE } from '../utils/site';
+
+// Where the car is parked — the pickup point, with a map.
+function ParkingLocation({ location }) {
+  return (
+    <section className="mt-10" aria-labelledby="parking-heading">
+      <h2 id="parking-heading" className="text-xl font-extrabold text-navy sm:text-2xl">
+        Parking Location
+      </h2>
+      <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 md:grid-cols-[1fr_1.4fr]">
+        <div className="flex flex-col justify-center gap-3 p-5 sm:p-6">
+          <p className="flex items-start gap-2.5 text-sm font-semibold text-slate-900">
+            <MapPinIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+            {parkingArea(location)}
+          </p>
+          <p className="text-xs text-slate-500">Pick up and drop off the car here, in Bengaluru.</p>
+          <a
+            href={mapsLink(location)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-blue-600 hover:underline"
+          >
+            Open in Google Maps <ArrowRightIcon className="h-4 w-4" />
+          </a>
+        </div>
+        <iframe
+          title="Parking location map"
+          src={mapsEmbedUrl(location)}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="h-56 w-full border-0 md:h-64"
+        />
+      </div>
+    </section>
+  );
+}
 
 function Stars({ value, size = 'h-4 w-4' }) {
   return (
@@ -107,9 +144,9 @@ export default function CarDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (car) document.title = `${vehicleName(car)} ${car.year} — Roam Wheels`;
+    if (car) document.title = `${vehicleName(car)} ${car.year} on Rent in Bengaluru | RoamWheels`;
     return () => {
-      document.title = 'Roam Wheels — Car Rentals';
+      document.title = DEFAULT_TITLE;
     };
   }, [car]);
 
@@ -208,6 +245,8 @@ export default function CarDetailPage() {
           </div>
         </div>
       </div>
+
+      <ParkingLocation location={car.parkingLocation} />
 
       <CarReviews carId={car._id} rating={car.rating} />
 

@@ -4,7 +4,8 @@ import Carousel from './Carousel';
 import Modal from './Modal';
 import EnquiryBar from './EnquiryBar';
 import { formatMoney, vehicleName } from '../utils/format';
-import { CarIcon, FuelIcon, GearIcon, StarIcon, WhatsAppIcon, ArrowRightIcon } from './icons';
+import { parkingArea } from '../utils/location';
+import { CarIcon, FuelIcon, GearIcon, StarIcon, WhatsAppIcon, ArrowRightIcon, MapPinIcon } from './icons';
 
 function Spec({ icon: Icon, children }) {
   return (
@@ -27,10 +28,12 @@ function Rating({ rating }) {
 // A car as shown to visitors (no login needed): photos in the site-wide 4:3 frame, specs, price and the
 // customers' rating, with a WhatsApp enquiry (dates picked in a pop-up) instead of online booking.
 // layout="list" is the wide card on the Cars page (photo on the left from tablet up); "grid" stacks.
-export default function CarCard({ car, layout = 'grid' }) {
+// showRating={false} leaves the rating out (the home page doesn't show ratings).
+export default function CarCard({ car, layout = 'grid', showRating = true }) {
   const [enquiring, setEnquiring] = useState(false);
   const name = `${vehicleName(car)} ${car.year || ''}`.trim();
   const list = layout === 'list';
+  const parking = parkingArea(car.parkingLocation);
 
   return (
     <article
@@ -50,7 +53,7 @@ export default function CarCard({ car, layout = 'grid' }) {
             </Link>
             <p className="text-xs text-slate-500">{car.year} model</p>
           </div>
-          <Rating rating={car.rating} />
+          {showRating && <Rating rating={car.rating} />}
         </div>
 
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
@@ -58,6 +61,12 @@ export default function CarCard({ car, layout = 'grid' }) {
           <Spec icon={FuelIcon}>{car.fuel}</Spec>
           <Spec icon={CarIcon}>{car.vehicleType}</Spec>
         </div>
+        <p className="mt-2.5 flex min-w-0 items-center gap-1.5 text-xs text-slate-600" title={car.parkingLocation?.address || undefined}>
+          <MapPinIcon className="h-4 w-4 flex-shrink-0 text-blue-600" />
+          <span className="truncate">
+            <span className="font-semibold text-slate-700">Parking:</span> {parking}
+          </span>
+        </p>
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-4">
           <div>
