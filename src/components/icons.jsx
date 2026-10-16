@@ -210,6 +210,14 @@ export function MenuIcon(props) {
   );
 }
 
+export function HomeIcon(props) {
+  return (
+    <Svg {...props}>
+      <path d="M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9" />
+    </Svg>
+  );
+}
+
 export function XIcon(props) {
   return (
     <Svg strokeWidth={2} {...props}>

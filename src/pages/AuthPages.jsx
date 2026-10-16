@@ -187,14 +187,15 @@ export function LoginPage() {
 // Shown right after the first login of a customer our team created (or whose password we reset):
 // they replace the temporary password before they can use the rest of the site.
 export function ChangePasswordPage() {
-  const { customer, changePassword, logout } = useAuth();
+  const { customer, signedOut, changePassword, logout } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({ current: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
   const next = safeNext(params.get('next'));
 
-  if (!customer) return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
+  // Logged out from this page: go home rather than back to the login page.
+  if (!customer) return <Navigate to={signedOut ? '/' : `/login?next=${encodeURIComponent(next)}`} replace />;
 
   const forced = customer.mustChangePassword;
   const set = (field) => (value) => setForm((f) => ({ ...f, [field]: value }));

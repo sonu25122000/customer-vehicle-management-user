@@ -6,6 +6,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   // undefined = still checking the session, null = logged out.
   const [customer, setCustomer] = useState(undefined);
+  // True once they log out on purpose, so members-only pages send them home rather than to the login page.
+  const [signedOut, setSignedOut] = useState(false);
 
   useEffect(() => {
     portal
@@ -16,12 +18,14 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (mobile, password) => {
     const c = await portal.login(mobile, password);
+    setSignedOut(false);
     setCustomer(c);
     return c;
   }, []);
 
   const signup = useCallback(async (payload) => {
     const c = await portal.signup(payload);
+    setSignedOut(false);
     setCustomer(c);
     return c;
   }, []);
@@ -37,13 +41,14 @@ export function AuthProvider({ children }) {
     try {
       await portal.logout();
     } finally {
+      setSignedOut(true);
       setCustomer(null);
     }
   }, []);
 
   const value = useMemo(
-    () => ({ customer, checking: customer === undefined, setCustomer, login, signup, logout, changePassword }),
-    [customer, login, signup, logout, changePassword]
+    () => ({ customer, checking: customer === undefined, signedOut, setCustomer, login, signup, logout, changePassword }),
+    [customer, signedOut, login, signup, logout, changePassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
