@@ -88,3 +88,16 @@ input[type='date']::-webkit-date-and-time-value {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #9ca3af;
 }
+
+/* Date picker bottom sheet (components/DatePicker.jsx) slides up on phones. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 0.25s ease-out;
+}

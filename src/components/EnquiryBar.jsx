@@ -4,7 +4,8 @@ import { formatDate, formatTime, isoDate } from '../utils/format';
 import { TIME_OPTIONS, startTimeOptions, endTimeOptions } from '../utils/timeOptions';
 import { trackEvent } from '../utils/analytics';
 import { CITIES, DEFAULT_CITY } from '../utils/site';
-import { CalendarIcon, ClockIcon, MapPinIcon, WhatsAppIcon } from './icons';
+import { ClockIcon, MapPinIcon, WhatsAppIcon } from './icons';
+import DatePicker from './DatePicker';
 
 function enquiryMessage(dates, carName) {
   const when = `from ${formatDate(dates.startDate)}, ${formatTime(dates.startTime)} to ${formatDate(dates.endDate)}, ${formatTime(dates.endTime)}`;
@@ -45,23 +46,13 @@ function CityField() {
   );
 }
 
-function DateTimeField({ label, date, time, minDate, allowedTimes, onDate, onTime }) {
+function DateTimeField({ label, date, time, minDate, rangeStart, allowedTimes, onDate, onTime }) {
   const allowed = new Set(allowedTimes.map((t) => t.value));
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <span className="text-sm font-bold text-primary">{label}</span>
       <div className="grid grid-cols-[1fr_auto] gap-2">
-        <label className="relative">
-          <span className="sr-only">{label} date</span>
-          <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="date"
-            value={date}
-            min={minDate}
-            onChange={(e) => onDate(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-2 text-sm font-semibold text-slate-800 outline-none focus:border-accent focus:ring-2 focus:ring-accent-100"
-          />
-        </label>
+        <DatePicker value={date} min={minDate} rangeStart={rangeStart} onChange={onDate} label={`${label} date`} />
         <label className="relative">
           <span className="sr-only">{label} time</span>
           <ClockIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -142,7 +133,8 @@ export default function EnquiryBar({ carName = '', compact = false, showCity = f
           label="Pick-Up"
           date={dates.startDate}
           time={dates.startTime}
-          minDate={isoDate(0)}
+          // Today only while it still has a pick-up slot left (late at night the earliest is tomorrow).
+          minDate={startTimeOptions(isoDate(0)).length ? isoDate(0) : isoDate(1)}
           allowedTimes={startSlots}
           onDate={(v) => set('startDate', v)}
           onTime={(v) => set('startTime', v)}
@@ -152,6 +144,7 @@ export default function EnquiryBar({ carName = '', compact = false, showCity = f
           date={dates.endDate}
           time={dates.endTime}
           minDate={dates.startDate}
+          rangeStart={dates.startDate}
           allowedTimes={endTimeOptions(dates)}
           onDate={(v) => set('endDate', v)}
           onTime={(v) => set('endTime', v)}

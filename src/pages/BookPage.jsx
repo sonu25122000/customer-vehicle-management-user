@@ -6,6 +6,7 @@ import { errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import Carousel from '../components/Carousel';
 import { inputClass, labelClass } from '../components/ProfileForm';
+import DatePicker from '../components/DatePicker';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import {
   CheckIcon,
@@ -137,10 +138,10 @@ function DatesStep({ dates, setDates, onBack, onNext }) {
           <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
             <CalendarIcon className="h-4 w-4 text-accent-600" /> Start
           </p>
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className={labelClass}>Start Date</span>
-            <input type="date" className={inputClass} min={isoDate(0)} value={dates.startDate} onChange={(e) => set('startDate', e.target.value)} required />
-          </label>
+            <DatePicker label="Start date" min={isoDate(0)} value={dates.startDate} onChange={(v) => set('startDate', v)} />
+          </div>
           <label className="flex flex-col gap-1.5">
             <span className={labelClass}>Start Time</span>
             <select className={inputClass} value={dates.startTime} onChange={(e) => set('startTime', e.target.value)}>
@@ -158,10 +159,10 @@ function DatesStep({ dates, setDates, onBack, onNext }) {
           <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
             <CalendarIcon className="h-4 w-4 text-accent-600" /> End
           </p>
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className={labelClass}>End Date</span>
-            <input type="date" className={inputClass} min={dates.startDate || isoDate(0)} value={dates.endDate} onChange={(e) => set('endDate', e.target.value)} required />
-          </label>
+            <DatePicker label="End date" min={dates.startDate || isoDate(0)} rangeStart={dates.startDate} value={dates.endDate} onChange={(v) => set('endDate', v)} />
+          </div>
           <label className="flex flex-col gap-1.5">
             <span className={labelClass}>End Time</span>
             <select className={inputClass} value={dates.endTime} onChange={(e) => set('endTime', e.target.value)}>
