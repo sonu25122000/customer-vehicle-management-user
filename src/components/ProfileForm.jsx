@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { LockIcon } from './icons';
 
 export const inputClass =
-  'w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100';
+  'w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent-100';
 export const labelClass = 'text-xs font-semibold text-slate-600';
 
 // Name / email editor for the profile page. The mobile number is shown but can't be edited — it's the
@@ -93,7 +93,7 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
         <button
           type="submit"
           disabled={saving}
-          className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+          className="cursor-pointer rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-accent-600 disabled:cursor-wait disabled:opacity-60"
         >
           {saving ? 'Saving...' : submitLabel}
         </button>

@@ -19,7 +19,7 @@ export default function Modal({ title, onClose, children }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-bold text-slate-900">{title}</h2>
+          <h2 className="text-base font-bold text-primary">{title}</h2>
           <button onClick={onClose} aria-label="Close" className="cursor-pointer text-2xl leading-none text-slate-400 hover:text-slate-700">
             ×
           </button>

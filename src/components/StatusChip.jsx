@@ -3,12 +3,12 @@ import { AlertIcon, CheckIcon, ClockIcon, RouteIcon, UploadIcon, XIcon } from '.
 const STYLES = {
   Pending: { className: 'bg-amber-50 text-amber-700 ring-amber-200', Icon: AlertIcon },
   'Not Uploaded': { className: 'bg-slate-50 text-slate-600 ring-slate-200', Icon: UploadIcon },
-  'In Review': { className: 'bg-blue-50 text-blue-700 ring-blue-200', Icon: ClockIcon },
+  'In Review': { className: 'bg-primary-50 text-primary ring-primary-200', Icon: ClockIcon },
   Verified: { className: 'bg-emerald-50 text-emerald-700 ring-emerald-200', Icon: CheckIcon },
   Rejected: { className: 'bg-red-50 text-red-700 ring-red-200', Icon: XIcon },
   // Trip statuses (same colours as the admin portal's TripStatusBadge family)
-  'Yet to Start': { className: 'bg-blue-50 text-blue-700 ring-blue-200', Icon: ClockIcon },
-  'On Trip': { className: 'bg-amber-50 text-amber-700 ring-amber-200', Icon: RouteIcon },
+  'Yet to Start': { className: 'bg-primary-50 text-primary ring-primary-200', Icon: ClockIcon },
+  'On Trip': { className: 'bg-accent-50 text-accent-800 ring-accent-200', Icon: RouteIcon },
   Completed: { className: 'bg-emerald-50 text-emerald-700 ring-emerald-200', Icon: CheckIcon },
   Cancelled: { className: 'bg-red-50 text-red-700 ring-red-200', Icon: XIcon },
 };

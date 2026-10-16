@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { isoDate } from './format';
+import { startTimeOptions } from './timeOptions';
 
 // The pick-up / return dates a visitor chose for a WhatsApp enquiry. Kept for the browser session, so
 // dates picked on the home page are already filled in when they enquire about a car on another page.
@@ -13,8 +14,9 @@ function defaults() {
 function load() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(KEY) || 'null');
-    // Dates in the past are no use for an enquiry.
-    if (saved?.startDate && saved.startDate >= isoDate(0) && saved.endDate >= saved.startDate) return saved;
+    // A pick-up that has already passed is no use for an enquiry.
+    const startOk = saved?.startDate && startTimeOptions(saved.startDate).some((t) => t.value === saved.startTime);
+    if (startOk && saved.endDate >= saved.startDate) return saved;
   } catch {
     // Storage unavailable (private mode etc.) — fall back to defaults.
   }

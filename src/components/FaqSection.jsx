@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: 'How do I book a car?',
-    a: 'Pick your pick-up and return dates, choose a car, and tap “Enquire on WhatsApp” — your dates and the car are filled into the message. Our team confirms availability and the price, and books the trip for you. You can also call us.',
+    a: 'Pick your pick-up and return dates, choose a car, and tap “Book Now” — WhatsApp opens with your dates and the car filled into the message. Our team confirms availability and the price, and books the trip for you. You can also call us.',
   },
   {
     q: 'What documents do I need?',
@@ -65,16 +65,16 @@ export default function FaqSection() {
     <section id="faq" className="scroll-mt-20 bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-[1fr_1.6fr] lg:gap-12">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">FAQs</p>
-          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-            Frequently Asked <span className="text-blue-600">Questions</span>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">FAQs</p>
+          <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
+            Frequently Asked <span className="text-accent-600">Questions</span>
           </h2>
           <p className="mt-3 text-sm text-slate-500">Everything about booking, documents and your trip. Can&apos;t find your answer?</p>
           <a
             href={whatsappLink('Hi Roam Wheels! I have a question.')}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-ink"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-primary-dark"
           >
             <WhatsAppIcon className="h-4 w-4" /> Ask us on WhatsApp
           </a>
@@ -84,7 +84,7 @@ export default function FaqSection() {
           {FAQS.map((f, i) => {
             const isOpen = open === i;
             return (
-              <div key={f.q} className={`rounded-2xl bg-white ring-1 transition-shadow ${isOpen ? 'shadow-md ring-blue-200' : 'ring-slate-200'}`}>
+              <div key={f.q} className={`rounded-2xl bg-white ring-1 transition-shadow ${isOpen ? 'shadow-md ring-accent-200' : 'ring-slate-200'}`}>
                 <h3>
                   <button
                     type="button"
@@ -95,7 +95,7 @@ export default function FaqSection() {
                     className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left text-sm font-bold text-slate-900 sm:text-base"
                   >
                     {f.q}
-                    <ChevronDownIcon className={`h-5 w-5 flex-shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                    <ChevronDownIcon className={`h-5 w-5 flex-shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-accent-600' : ''}`} />
                   </button>
                 </h3>
                 <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} hidden={!isOpen} className="px-5 pb-5 text-sm leading-relaxed text-slate-600">

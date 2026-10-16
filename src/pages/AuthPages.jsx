@@ -8,7 +8,7 @@ import heroImage from '../assets/login-hero.png';
 import logo from '../assets/logo.png';
 
 const inputClass =
-  'w-full rounded-lg border border-gray-200 bg-gray-50 py-3 pl-10 pr-3 text-sm text-gray-900 outline-none transition-colors focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100';
+  'w-full rounded-lg border border-gray-200 bg-gray-50 py-3 pl-10 pr-3 text-sm text-gray-900 outline-none transition-colors focus:border-accent-300 focus:bg-white focus:ring-2 focus:ring-accent-100';
 
 // Only same-site paths are followed after login, never an absolute URL from the query string.
 function safeNext(next) {
@@ -55,7 +55,7 @@ function PasswordInput({ value, onChange, autoComplete, placeholder = 'Enter you
 }
 
 const pillClass =
-  'inline-flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-navy shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white hover:text-blue-700';
+  'inline-flex items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-primary shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white hover:text-accent-700';
 
 function AuthShell({ title, subtitle, children, footer }) {
   return (
@@ -78,9 +78,9 @@ function AuthShell({ title, subtitle, children, footer }) {
           <img src={logo} alt="Roam Wheels" className="h-20 w-auto drop-shadow-[0_1px_6px_rgba(255,255,255,0.9)]" />
         </Link>
 
-        <div className="rounded-3xl bg-navy p-5 shadow-2xl sm:p-8">
+        <div className="rounded-3xl bg-primary p-5 shadow-2xl sm:p-8">
           <div className="relative rounded-2xl bg-white p-6 pt-12 shadow-2xl sm:p-8 sm:pt-14">
-            <span className="absolute left-1/2 top-0 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg ring-4 ring-white">
+            <span className="absolute left-1/2 top-0 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-primary shadow-lg ring-4 ring-white">
               <LockIcon className="h-6 w-6" />
             </span>
             <h1 className="text-center text-xl font-bold text-gray-900">{title}</h1>
@@ -89,13 +89,13 @@ function AuthShell({ title, subtitle, children, footer }) {
             <p className="mt-5 text-center text-sm text-gray-600">{footer}</p>
           </div>
 
-          <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-blue-100">
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-primary-100">
             <ShieldCheckIcon className="h-3.5 w-3.5" /> Rent &middot; Roam &middot; Repeat
           </p>
         </div>
 
-        <p className="mt-4 text-center text-sm font-semibold text-navy">
-          <Link to="/" className="rounded-full bg-white/85 px-4 py-2 shadow-sm ring-1 ring-slate-200 backdrop-blur hover:bg-white hover:text-blue-700">
+        <p className="mt-4 text-center text-sm font-semibold text-primary">
+          <Link to="/" className="rounded-full bg-white/85 px-4 py-2 shadow-sm ring-1 ring-slate-200 backdrop-blur hover:bg-white hover:text-accent-700">
             Just looking? Continue to the home page &rarr;
           </Link>
         </p>
@@ -109,7 +109,7 @@ function SubmitButton({ loading, children }) {
     <button
       type="submit"
       disabled={loading}
-      className="mt-2 w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className="mt-2 w-full cursor-pointer rounded-lg bg-accent px-4 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {children}
     </button>
@@ -153,7 +153,7 @@ export function LoginPage() {
       footer={
         <>
           New to Roam Wheels?{' '}
-          <Link to={`/signup${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-semibold text-blue-600 hover:underline">
+          <Link to={`/signup${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-semibold text-accent-600 hover:underline">
             Create an account
           </Link>
         </>
@@ -233,10 +233,10 @@ export function ChangePasswordPage() {
         <button
           type="button"
           onClick={async () => {
-            await logout();
             navigate('/', { replace: true });
+            await logout();
           }}
-          className="cursor-pointer font-semibold text-blue-600 hover:underline"
+          className="cursor-pointer font-semibold text-accent-600 hover:underline"
         >
           Log out
         </button>
@@ -300,7 +300,7 @@ export function SignupPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to={`/login${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-semibold text-blue-600 hover:underline">
+          <Link to={`/login${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-semibold text-accent-600 hover:underline">
             Log in
           </Link>
         </>

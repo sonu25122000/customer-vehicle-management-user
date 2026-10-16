@@ -35,7 +35,7 @@ const METRIC_ICONS = [RouteIcon, UserIcon, StarIcon, CheckIcon];
 function MetricsBand() {
   return (
     <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-slate-50 to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-navy shadow-2xl shadow-navy/25 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-primary shadow-2xl shadow-primary/25 lg:grid-cols-4">
         {SITE_METRICS.map((m, i) => {
           const Icon = METRIC_ICONS[i % METRIC_ICONS.length];
           return (
@@ -45,15 +45,15 @@ function MetricsBand() {
                 i >= 2 ? 'border-t border-white/10 lg:border-t-0' : ''
               } ${i === 2 ? 'lg:border-l' : ''}`}
             >
-              <span className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 text-blue-200 sm:flex">
+              <span className="hidden h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 text-accent sm:flex">
                 <Icon className="h-6 w-6" />
               </span>
               <div className="min-w-0">
                 <p className="flex items-center gap-1 text-2xl font-extrabold leading-none text-white sm:text-3xl">
                   {m.value}
-                  {m.star && <StarIcon className="h-5 w-5 text-amber-400 sm:h-6 sm:w-6" />}
+                  {m.star && <StarIcon className="h-5 w-5 text-accent sm:h-6 sm:w-6" />}
                 </p>
-                <p className="mt-1.5 text-xs font-medium text-blue-100/80 sm:text-sm">{m.label}</p>
+                <p className="mt-1.5 text-xs font-medium text-primary-100/80 sm:text-sm">{m.label}</p>
               </div>
             </div>
           );
@@ -83,11 +83,11 @@ function FeaturedCars() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Our fleet in Bengaluru</p>
-            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-              Self-Drive Cars in <span className="text-blue-600">Bengaluru</span>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">Our fleet in Bengaluru</p>
+            <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
+              Self-Drive Cars in <span className="text-accent-600">Bengaluru</span>
             </h2>
-            <p className="mt-2 text-sm text-slate-500">Well-kept cars for city drives and weekend getaways — pick one and enquire on WhatsApp.</p>
+            <p className="mt-2 text-sm text-slate-500">Well-kept cars for city drives and weekend getaways — pick one and tap Book Now.</p>
           </div>
           <form
             onSubmit={(e) => {
@@ -103,11 +103,11 @@ function FeaturedCars() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search cars (e.g. SUV, Swift)"
               aria-label="Search cars"
-              className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-24 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-24 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent-100"
             />
             <button
               type="submit"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-navy px-4 py-2 text-xs font-bold text-white hover:bg-ink"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-dark"
             >
               Search
             </button>
@@ -124,7 +124,7 @@ function FeaturedCars() {
         <div className="mt-8 text-center">
           <Link
             to="/cars"
-            className="inline-flex items-center gap-2 rounded-full border-2 border-navy px-6 py-2.5 text-sm font-bold text-navy transition-colors hover:bg-navy hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-6 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white"
           >
             View all cars <ArrowRightIcon className="h-4 w-4" />
           </Link>
@@ -141,19 +141,18 @@ const FEATURES = [
   { icon: HeadsetIcon, title: '24/7 Support', text: "We're always here when you need us." },
 ];
 
-// Where renters usually come from / head to — for the "car rental in Bengaluru" section.
-const NEARBY_AREAS = ['Whitefield', 'ITPL', 'Marathahalli', 'Brookefield', 'Kadugodi', 'Hoodi', 'KR Puram', 'Bellandur', 'Sarjapur Road', 'Indiranagar'];
+// Weekend getaways mentioned in the "car rental in Bengaluru" section.
 const GETAWAYS = ['Nandi Hills', 'Mysuru', 'Coorg', 'Chikmagalur', 'Ooty', 'Pondicherry'];
 
 // Who we are and where we operate — written for people searching for a car rental in Bengaluru.
 function BengaluruSection() {
   return (
     <section aria-labelledby="bengaluru-heading" className="bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+      <div className="mx-auto max-w-3xl text-center">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Only in Bengaluru</p>
-          <h2 id="bengaluru-heading" className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-            Self-Drive Car Rental in <span className="text-blue-600">Whitefield, Bengaluru</span>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">Only in Bengaluru</p>
+          <h2 id="bengaluru-heading" className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
+            Self-Drive Car Rental in <span className="text-accent-600">Whitefield, Bengaluru</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
             Roam Wheels is a Bengaluru car rental service based in Whitefield. We rent self-drive cars only in Bengaluru (Bangalore) —
@@ -166,32 +165,10 @@ function BengaluruSection() {
           </p>
           <Link
             to="/cars"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-3 text-sm font-bold text-white shadow-lg shadow-navy/20 transition-colors hover:bg-ink"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary-dark"
           >
             See cars in Bengaluru <ArrowRightIcon className="h-4 w-4" />
           </Link>
-        </div>
-        <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-          <p className="flex items-center gap-2 text-sm font-bold text-navy">
-            <MapPinIcon className="h-5 w-5 text-blue-600" /> Areas we serve near Whitefield
-          </p>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {NEARBY_AREAS.map((a) => (
-              <li key={a} className="rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-800 ring-1 ring-blue-100">
-                {a}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 flex items-center gap-2 text-sm font-bold text-navy">
-            <RouteIcon className="h-5 w-5 text-blue-600" /> Weekend getaways from Bengaluru
-          </p>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {GETAWAYS.map((g) => (
-              <li key={g} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-semibold text-slate-700">
-                {g}
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>
@@ -203,17 +180,17 @@ export default function HomePage() {
     <div className="flex min-h-dvh flex-col bg-white">
       {/* Hero: Zoomcar-style centred headline + numbers, with a Mychoize-style pick-up / return bar that
           goes straight to a WhatsApp enquiry. The car photo shows through underneath. */}
-      <section className="relative overflow-hidden bg-[#eef3fb]">
+      <section className="relative overflow-hidden bg-primary-50">
         <div className="absolute inset-0 bg-cover bg-[position:65%_100%] md:bg-[position:center_85%]" style={{ backgroundImage: `url(${heroImage})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#eef3fb] from-45% via-[#eef3fb]/85 via-70% to-[#eef3fb]/10 md:from-35% md:via-60%" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-50 from-45% via-primary-50/85 via-70% to-primary-50/10 md:from-35% md:via-60%" />
         <Navbar overlay />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-56 pt-24 text-center sm:px-6 sm:pb-72 sm:pt-32 lg:pb-80">
-          <p className="flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-blue-700 shadow-sm ring-1 ring-blue-100 backdrop-blur">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-24 text-center sm:px-6 sm:pb-72 sm:pt-32 lg:pb-80">
+          <p className="flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-accent-700 shadow-sm ring-1 ring-accent-100 backdrop-blur">
             <MapPinIcon className="h-3.5 w-3.5" /> Self-drive car rentals in Bengaluru
           </p>
-          <h1 className="mt-4 max-w-4xl text-[2rem] font-extrabold leading-[1.1] text-navy sm:text-5xl lg:text-6xl">
-            Affordable Car Rentals in <span className="text-blue-600">Bengaluru</span>
+          <h1 className="mt-4 max-w-4xl text-[2rem] font-extrabold leading-[1.1] text-primary sm:text-5xl lg:text-6xl">
+            Find the Perfect Car for Your <span className="text-accent">Next Journey</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
             Easy, affordable &amp; flexible. Choose your car, pick your dates, and enjoy the freedom of every journey.
@@ -221,21 +198,21 @@ export default function HomePage() {
 
           {/* Booking bar */}
           <div className="mt-8 w-full max-w-6xl text-left">
-            <div className="inline-flex rounded-t-xl bg-navy px-5 py-2.5 text-sm font-bold text-white">Self-Drive Rentals · Bengaluru</div>
-            <div className="rounded-b-2xl rounded-tr-2xl bg-white p-4 shadow-xl shadow-navy/10 ring-1 ring-slate-200 sm:p-6">
+            <div className="inline-flex rounded-t-xl bg-primary px-5 py-2.5 text-sm font-bold text-white">Self-Drive Rentals · Bengaluru</div>
+            <div className="rounded-b-2xl rounded-tr-2xl bg-white p-4 shadow-xl shadow-primary/10 ring-1 ring-slate-200 sm:p-6">
               <EnquiryBar showCity />
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/cars"
-                className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-navy shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
+                className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-primary shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
               >
                 <CarIcon className="h-4.5 w-4.5" /> Browse Cars
               </Link>
               {SUPPORT_PHONE && (
                 <a
                   href={phoneLink()}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-navy shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
+                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-primary shadow-md ring-1 ring-slate-200 backdrop-blur transition-colors hover:bg-white"
                 >
                   <PhoneIcon className="h-4.5 w-4.5" /> Call {formatPhone()}
                 </a>
@@ -254,15 +231,15 @@ export default function HomePage() {
       {/* Why choose */}
       <section className="bg-white px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-7xl text-center">
-          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
-            Why Choose <span className="text-blue-600">Roam Wheels</span>?
+          <h2 className="text-2xl font-extrabold text-primary sm:text-3xl">
+            Why Choose <span className="text-accent-600">Roam Wheels</span>?
           </h2>
           <p className="mt-2 text-sm text-slate-500">We make car rentals in Bengaluru simple, safe and convenient.</p>
 
           <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:mt-12 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-10">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex flex-col items-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-8 ring-blue-50/60 sm:h-16 sm:w-16">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-50 text-accent-600 ring-8 ring-accent-50/60 sm:h-16 sm:w-16">
                   <Icon className="h-7 w-7" />
                 </span>
                 <h3 className="mt-5 text-sm font-bold text-slate-900">{title}</h3>
@@ -280,13 +257,13 @@ export default function HomePage() {
       <FaqSection />
 
       {/* Get in touch */}
-      <section id="contact" className="relative scroll-mt-20 overflow-hidden bg-navy px-4 py-14 text-center sm:px-6 sm:py-20 lg:py-24">
+      <section id="contact" className="relative scroll-mt-20 overflow-hidden bg-primary px-4 py-14 text-center sm:px-6 sm:py-20 lg:py-24">
         <div className="absolute inset-0 bg-cover bg-bottom opacity-25 mix-blend-luminosity" style={{ backgroundImage: `url(${heroImage})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/70 to-ink/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/70 to-primary-dark/90" />
         <div className="relative mx-auto max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-200">Get in touch</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-accent">Get in touch</p>
           <h2 className="mt-3 text-[1.75rem] font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">Let&apos;s Get You on the Road</h2>
-          <p className="mt-3 text-sm text-blue-100/90">
+          <p className="mt-3 text-sm text-primary-100/90">
             Need a self-drive car in Bengaluru? Reach out to us on WhatsApp or give us a call — we&apos;ll get back to you instantly.
           </p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -300,21 +277,11 @@ export default function HomePage() {
               </a>
             )}
           </div>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 text-sm text-blue-100 sm:flex-row sm:gap-0">
-            <Link to="/cars" className="flex items-center gap-2 hover:text-white sm:px-5">
-              <CarIcon className="h-4 w-4" /> See Our Cars
-            </Link>
-            {SUPPORT_EMAIL && <span className="hidden h-4 w-px bg-white/25 sm:block" />}
-            {SUPPORT_EMAIL && (
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="flex items-center gap-2 hover:text-white sm:px-5">
-                <MailIcon className="h-4 w-4" /> {SUPPORT_EMAIL}
-              </a>
-            )}
-            <span className="hidden h-4 w-px bg-white/25 sm:block" />
-            <a href="#reviews" className="flex items-center gap-2 hover:text-white sm:px-5">
-              <StarIcon className="h-4 w-4" /> Reviews
+          {SUPPORT_EMAIL && (
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-8 inline-flex items-center gap-2 text-sm text-primary-100 hover:text-white">
+              <MailIcon className="h-4 w-4" /> {SUPPORT_EMAIL}
             </a>
-          </div>
+          )}
         </div>
       </section>
 

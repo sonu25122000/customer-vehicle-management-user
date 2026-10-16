@@ -9,13 +9,13 @@ const TILES = [
   { icon: StarIcon, label: 'Offers & giveaways' },
 ];
 
-// Promotes the Instagram profile: a bold, Instagram-gradient banner with what followers get, and a
+// Promotes the Instagram profile: a bold, brand-coloured banner with what followers get, and a
 // single "Follow" call to action.
 export default function InstagramSection() {
   return (
     <section className="bg-white px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-[#833ab4] via-[#e1306c] to-[#f77737] p-6 text-white shadow-xl sm:p-10 lg:p-12">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10" />
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dark p-6 text-white shadow-xl sm:p-10 lg:p-12">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-accent/15" />
         <div className="pointer-events-none absolute -bottom-24 right-40 h-56 w-56 rounded-full bg-white/10" />
         <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
           <div>
@@ -38,7 +38,7 @@ export default function InstagramSection() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('instagram_click', { location: 'home_section' })}
-              className="mt-7 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#c13584] shadow-lg transition-transform hover:scale-[1.03]"
+              className="mt-7 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-primary shadow-lg shadow-accent/30 transition-transform hover:scale-[1.03]"
             >
               <InstagramIcon className="h-5 w-5" /> Follow {INSTAGRAM_HANDLE}
               <ArrowRightIcon className="h-4 w-4" />
@@ -56,7 +56,7 @@ export default function InstagramSection() {
           >
             <div className="flex items-center gap-2.5 px-4 py-3">
               <span className="rounded-full bg-gradient-to-tr from-[#f77737] via-[#e1306c] to-[#833ab4] p-[2px]">
-                <span className="block h-8 w-8 rounded-full bg-navy" />
+                <span className="block h-8 w-8 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-bold">{INSTAGRAM_HANDLE.slice(1)}</span>
             </div>

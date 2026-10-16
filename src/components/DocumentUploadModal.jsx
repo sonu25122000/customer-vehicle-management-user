@@ -49,11 +49,11 @@ export default function DocumentUploadModal({ onClose, onUploaded, onFile = [], 
             <label
               key={d.type}
               className={`flex cursor-pointer items-center gap-3 rounded-xl border border-dashed px-4 py-3 transition-colors ${
-                file ? 'border-blue-400 bg-blue-50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
+                file ? 'border-accent-300 bg-accent-50' : 'border-slate-300 hover:border-accent-300 hover:bg-slate-50'
               }`}
             >
               <span
-                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${file ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}
+                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full ${file ? 'bg-accent text-primary' : 'bg-slate-100 text-slate-500'}`}
               >
                 {file ? <CheckIcon className="h-4 w-4" /> : <UploadIcon className="h-4 w-4" />}
               </span>
@@ -77,7 +77,7 @@ export default function DocumentUploadModal({ onClose, onUploaded, onFile = [], 
         <button
           type="submit"
           disabled={uploading}
-          className="mt-2 w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+          className="mt-2 w-full cursor-pointer rounded-lg bg-accent px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-accent-600 disabled:cursor-wait disabled:opacity-60"
         >
           {uploading ? 'Uploading...' : `Upload${selected ? ` (${selected})` : ''}`}
         </button>

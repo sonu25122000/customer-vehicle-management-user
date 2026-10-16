@@ -21,7 +21,7 @@ function Banner({ summary, tripId }) {
       ? { box: 'bg-red-50 text-red-800 ring-red-200', Icon: AlertIcon }
       : summary.missing.length
         ? { box: 'bg-amber-50 text-amber-800 ring-amber-200', Icon: UploadIcon }
-        : { box: 'bg-blue-50 text-blue-800 ring-blue-200', Icon: ClockIcon };
+        : { box: 'bg-accent-50 text-accent-800 ring-accent-200', Icon: ClockIcon };
   const Icon = tone.Icon;
 
   return (
@@ -105,7 +105,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
-      <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">Verification Documents</h1>
+      <h1 className="text-xl font-extrabold text-primary sm:text-2xl">Verification Documents</h1>
       <p className="mt-1 text-sm text-slate-500">
         Your Aadhaar, driving license and a selfie are needed to start a trip. Each one is checked separately.
       </p>
@@ -123,7 +123,7 @@ export default function DocumentsPage() {
           return (
             <div key={d.type} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
               <div className="flex min-w-0 flex-1 items-start gap-4">
-                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600 ring-1 ring-accent-100">
                   <Icon className="h-6 w-6" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -142,7 +142,7 @@ export default function DocumentsPage() {
                     </p>
                   )}
                   {doc && doc.status !== 'Approved' && doc.status !== 'Rejected' && (
-                    <p className="mt-1 text-xs text-blue-700">We&apos;re checking this one — no action needed.</p>
+                    <p className="mt-1 text-xs text-accent-700">We&apos;re checking this one — no action needed.</p>
                   )}
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function DocumentsPage() {
                 onClick={() => setUploadTypes([d.type])}
                 className={`flex-shrink-0 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-bold transition-colors ${
                   !doc || doc.status === 'Rejected'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-700'
+                    ? 'bg-accent text-primary shadow-md shadow-accent/20 hover:bg-accent-600'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -164,7 +164,7 @@ export default function DocumentsPage() {
       {summary.missing.length > 1 && (
         <button
           onClick={() => setUploadTypes(summary.missing.map((d) => d.type))}
-          className="mt-4 w-full cursor-pointer rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700"
+          className="mt-4 w-full cursor-pointer rounded-xl bg-accent px-4 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 hover:bg-accent-600"
         >
           Upload all missing documents ({summary.missing.length})
         </button>

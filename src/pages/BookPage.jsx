@@ -20,7 +20,7 @@ import {
   MailIcon,
   AlertIcon,
 } from '../components/icons';
-import { TIME_OPTIONS } from '../utils/timeOptions';
+import { startTimeOptions, endTimeOptions } from '../utils/timeOptions';
 import { formatDate, formatMoney, formatTime, isoDate, rentalDays, vehicleName } from '../utils/format';
 import { DOCUMENTS } from '../utils/documents';
 
@@ -38,14 +38,14 @@ function Stepper({ step }) {
             <div className="flex flex-col items-center gap-1.5">
               <span
                 className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                  done ? 'bg-blue-600 text-white' : active ? 'bg-navy text-white ring-4 ring-blue-100' : 'bg-white text-slate-400 ring-1 ring-slate-300'
+                  done ? 'bg-accent text-primary' : active ? 'bg-primary text-white ring-4 ring-accent-100' : 'bg-white text-slate-400 ring-1 ring-slate-300'
                 }`}
               >
                 {done ? <CheckIcon className="h-4 w-4" /> : i + 1}
               </span>
               <span className={`hidden text-xs font-semibold sm:block ${active || done ? 'text-slate-900' : 'text-slate-400'}`}>{label}</span>
             </div>
-            {i < STEPS.length - 1 && <span className={`mx-2 mb-0 h-0.5 flex-1 rounded sm:mb-5 ${done ? 'bg-blue-600' : 'bg-slate-200'}`} />}
+            {i < STEPS.length - 1 && <span className={`mx-2 mb-0 h-0.5 flex-1 rounded sm:mb-5 ${done ? 'bg-accent' : 'bg-slate-200'}`} />}
           </li>
         );
       })}
@@ -61,7 +61,7 @@ function Stepper({ step }) {
 function Card({ title, subtitle, children }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+      <h2 className="text-lg font-bold text-primary">{title}</h2>
       {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
       <div className="mt-5">{children}</div>
     </div>
@@ -94,7 +94,7 @@ function NavButtons({ onBack, onNext, nextLabel = 'Continue', nextDisabled, load
         type={onNext ? 'button' : 'submit'}
         onClick={onNext}
         disabled={nextDisabled || loading}
-        className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:py-2.5"
+        className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:py-2.5"
       >
         {loading ? 'Please wait...' : nextLabel} {!loading && <ArrowRightIcon className="h-4 w-4" />}
       </button>
@@ -102,26 +102,17 @@ function NavButtons({ onBack, onNext, nextLabel = 'Continue', nextDisabled, load
   );
 }
 
-// Half-hour slots; on today's date only slots at least 30 minutes from now.
-function startTimeOptions(date) {
-  if (date !== isoDate(0)) return TIME_OPTIONS;
-  const now = new Date();
-  const minMinutes = now.getHours() * 60 + now.getMinutes() + 30;
-  return TIME_OPTIONS.filter((t) => {
-    const [h, m] = t.value.split(':').map(Number);
-    return h * 60 + m >= minMinutes;
-  });
-}
-
 function DatesStep({ dates, setDates, onBack, onNext }) {
   const startOptions = startTimeOptions(dates.startDate);
-  const endOptions = dates.endDate === dates.startDate ? TIME_OPTIONS.filter((t) => t.value > dates.startTime) : TIME_OPTIONS;
+  const endOptions = endTimeOptions(dates);
   const days = rentalDays(dates.startDate, dates.startTime, dates.endDate, dates.endTime);
 
   function set(field, value) {
     setDates((d) => {
       const next = { ...d, [field]: value };
-      if (field === 'startDate' && next.endDate < value) next.endDate = value;
+      // Typed-in dates skip the pickers' min, so clamp: no pick-up in the past, no end before the start.
+      if (next.startDate && next.startDate < isoDate(0)) next.startDate = isoDate(0);
+      if (next.endDate && next.endDate < next.startDate) next.endDate = next.startDate;
       return next;
     });
   }
@@ -144,7 +135,7 @@ function DatesStep({ dates, setDates, onBack, onNext }) {
         <fieldset className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
           <legend className="sr-only">Start</legend>
           <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
-            <CalendarIcon className="h-4 w-4 text-blue-600" /> Start
+            <CalendarIcon className="h-4 w-4 text-accent-600" /> Start
           </p>
           <label className="flex flex-col gap-1.5">
             <span className={labelClass}>Start Date</span>
@@ -165,7 +156,7 @@ function DatesStep({ dates, setDates, onBack, onNext }) {
         <fieldset className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
           <legend className="sr-only">End</legend>
           <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
-            <CalendarIcon className="h-4 w-4 text-blue-600" /> End
+            <CalendarIcon className="h-4 w-4 text-accent-600" /> End
           </p>
           <label className="flex flex-col gap-1.5">
             <span className={labelClass}>End Date</span>
@@ -185,7 +176,7 @@ function DatesStep({ dates, setDates, onBack, onNext }) {
         </fieldset>
       </div>
       {days > 0 && (
-        <p className="mt-4 rounded-lg bg-blue-50 px-4 py-2.5 text-sm text-blue-800">
+        <p className="mt-4 rounded-lg bg-accent-50 px-4 py-2.5 text-sm text-accent-800">
           Rental duration: <span className="font-bold">{days} day{days === 1 ? '' : 's'}</span>
         </p>
       )}
@@ -252,14 +243,14 @@ function CarsStep({ dates, selected, onSelect, onBack, onNext }) {
                     onSelect(v);
                   }
                 }}
-                className={`cursor-pointer overflow-hidden rounded-xl border-2 bg-white text-left outline-none transition-all focus-visible:ring-4 focus-visible:ring-blue-200 ${
-                  isSelected ? 'border-blue-600 shadow-lg shadow-blue-600/15' : 'border-slate-200 hover:border-blue-300'
+                className={`cursor-pointer overflow-hidden rounded-xl border-2 bg-white text-left outline-none transition-all focus-visible:ring-4 focus-visible:ring-accent-200 ${
+                  isSelected ? 'border-accent shadow-lg shadow-accent/15' : 'border-slate-200 hover:border-accent-300'
                 }`}
               >
                 <div className="relative">
                   <Carousel photos={v.photos} alt={vehicleName(v)} />
                   {isSelected && (
-                    <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow">
+                    <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-primary shadow">
                       <CheckIcon className="h-4 w-4" />
                     </span>
                   )}
@@ -371,7 +362,7 @@ function CouponBox({ vehicle, dates, coupon, setCoupon }) {
         <button
           type="submit"
           disabled={checking || !code.trim()}
-          className="cursor-pointer rounded-lg bg-navy px-4 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-lg bg-primary px-4 text-sm font-bold text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {checking ? 'Checking...' : 'Apply'}
         </button>
@@ -395,7 +386,7 @@ function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onB
           {/* Profile */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Your profile</h2>
+              <h2 className="text-lg font-bold text-primary">Your profile</h2>
               <p className="mt-0.5 text-sm text-slate-500">Booking will be made under these details.</p>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -405,7 +396,7 @@ function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onB
                 { icon: MailIcon, label: 'Email', value: customer.email || 'Not added', wide: true },
               ].map(({ icon: Icon, label, value, wide }) => (
                 <div key={label} className={`flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 ${wide ? 'sm:col-span-2' : ''}`}>
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
                     <Icon className="h-4.5 w-4.5" />
                   </span>
                   <div className="min-w-0">
@@ -436,8 +427,8 @@ function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onB
           <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr]">
             <Carousel photos={vehicle.photos} alt={vehicleName(vehicle)} />
             <div className="p-5 sm:p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-600">{vehicle.vehicleType}</p>
-              <h2 className="text-xl font-extrabold text-slate-900">{vehicle.model}</h2>
+              <p className="text-xs font-bold uppercase tracking-wider text-accent-600">{vehicle.vehicleType}</p>
+              <h2 className="text-xl font-extrabold text-primary">{vehicle.model}</h2>
               <p className="text-sm text-slate-500">
                 {vehicle.make} · {vehicle.year}
               </p>
@@ -455,7 +446,7 @@ function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onB
 
       {/* Summary */}
       <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-28">
-        <h2 className="text-lg font-bold text-slate-900">Trip summary</h2>
+        <h2 className="text-lg font-bold text-primary">Trip summary</h2>
         <div className="mt-2 divide-y divide-slate-100">
           <SummaryRow label="Start">
             {formatDate(dates.startDate)}, {formatTime(dates.startTime)}
@@ -474,8 +465,8 @@ function ConfirmStep({ customer, profile, vehicle, dates, coupon, setCoupon, onB
           {coupon && <SummaryRow label={`Coupon ${coupon.code}`}>−{formatMoney(coupon.discount)}</SummaryRow>}
         </div>
         {gross > 0 && <CouponBox vehicle={vehicle} dates={dates} coupon={coupon} setCoupon={setCoupon} />}
-        <div className="mt-2 flex items-center justify-between rounded-xl bg-navy px-4 py-3 text-white">
-          <span className="text-sm font-semibold text-blue-100">Total Amount</span>
+        <div className="mt-2 flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-white">
+          <span className="text-sm font-semibold text-primary-100">Total Amount</span>
           <span className="text-xl font-extrabold">{total ? formatMoney(total) : 'To be confirmed'}</span>
         </div>
         {!total && <p className="mt-2 text-xs text-slate-500">Our team will confirm the price for this car on WhatsApp.</p>}
@@ -531,7 +522,7 @@ export default function BookPage() {
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
           <CheckIcon className="h-8 w-8" />
         </span>
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Booking Confirmed!</h1>
+        <h1 className="mt-4 text-2xl font-extrabold text-primary">Booking Confirmed!</h1>
         <p className="mt-2 text-sm text-slate-500">
           Your {vehicleName(booked.vehicle)} is booked from {formatDate(booked.startDate)} to {formatDate(booked.endDate)}.
         </p>
@@ -541,7 +532,7 @@ export default function BookPage() {
             label="Share on WhatsApp"
             message={`Hi Roam Wheels! I just booked trip ${booked.tripId} (${vehicleName(booked.vehicle)}, ${booked.startDate.slice(0, 10)} ${booked.startTime} to ${booked.endDate.slice(0, 10)} ${booked.endTime}).`}
           />
-          <Link to="/trips" className="text-sm font-bold text-blue-600 hover:underline">
+          <Link to="/trips" className="text-sm font-bold text-accent-600 hover:underline">
             View My Trips →
           </Link>
         </div>
@@ -551,7 +542,7 @@ export default function BookPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">Book a Car</h1>
+      <h1 className="text-xl font-extrabold text-primary sm:text-2xl">Book a Car</h1>
       <div className="mt-5 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-8">
         <Stepper step={step} />
       </div>
@@ -566,7 +557,7 @@ export default function BookPage() {
                 { icon: PhoneIcon, label: 'Mobile', value: `+91 ${customer.mobile1}` },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600">
                     <Icon className="h-4.5 w-4.5" />
                   </span>
                   <div className="min-w-0">

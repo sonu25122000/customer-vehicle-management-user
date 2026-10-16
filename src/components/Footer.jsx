@@ -3,13 +3,13 @@ import logo from '../assets/logo2.png';
 import { INSTAGRAM_URL, INSTAGRAM_HANDLE, SUPPORT_PHONE, SUPPORT_EMAIL, phoneLink, formatPhone, whatsappLink } from '../utils/contact';
 import { InstagramIcon, PhoneIcon, MailIcon, WhatsAppIcon } from './icons';
 
-// logo2.png is drawn on #010a18, which matches the ink background here so there's no visible box.
+// logo2.png is drawn on a near-black box; mix-blend-lighten lets the footer colour show through it instead.
 export default function Footer() {
   return (
-    <footer className="bg-ink text-slate-300">
+    <footer className="bg-primary text-slate-300">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div>
-          <img src={logo} alt="Roam Wheels" className="h-10 w-auto" />
+          <img src={logo} alt="Roam Wheels" className="h-10 w-auto mix-blend-lighten" />
           <p className="mt-3 max-w-xs text-sm text-slate-400">Self-drive car rentals in Whitefield, Bengaluru — reliable cars, flexible plans and a hassle-free experience. We operate only in Bengaluru.</p>
           <p className="mt-3 text-sm font-medium text-slate-300">
             Drive More <span className="mx-2 text-slate-600">|</span> Worry Less

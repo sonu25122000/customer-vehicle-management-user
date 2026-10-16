@@ -30,23 +30,23 @@ export default function OffersStrip({ className = '' }) {
   return (
     <section className={className}>
       <div className="flex items-center gap-2">
-        <TagIcon className="h-5 w-5 text-blue-600" />
-        <h2 className="text-lg font-extrabold text-slate-900 sm:text-xl">Offers for you</h2>
+        <TagIcon className="h-5 w-5 text-accent-600" />
+        <h2 className="text-lg font-extrabold text-primary sm:text-xl">Offers for you</h2>
       </div>
       <div className="no-scrollbar -mx-4 mt-3 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-3 sm:w-auto sm:flex-wrap">
           {offers.map((o) => (
             <div
               key={o._id}
-              className="relative w-64 flex-shrink-0 overflow-hidden rounded-2xl border border-dashed border-blue-300 bg-gradient-to-br from-blue-50 to-white p-4"
+              className="relative w-64 flex-shrink-0 overflow-hidden rounded-2xl border border-dashed border-accent-300 bg-gradient-to-br from-accent-50 to-white p-4"
             >
-              <p className="text-xl font-extrabold text-blue-700">{offerText(o)}</p>
+              <p className="text-xl font-extrabold text-accent-700">{offerText(o)}</p>
               <p className="mt-2 inline-block rounded-md bg-white px-2.5 py-1 font-mono text-sm font-bold tracking-wider text-slate-800 ring-1 ring-slate-200">
                 {o.code}
               </p>
               <p className="mt-2 text-xs text-slate-500">
                 Valid till {formatExpiry(o.expiresAt)}
-                {o.forYou && <span className="ml-1.5 font-semibold text-blue-700">· Just for you</span>}
+                {o.forYou && <span className="ml-1.5 font-semibold text-accent-700">· Just for you</span>}
                 {o.perCustomerLimit ? (
                   <span className="ml-1.5">· {o.perCustomerLimit === 1 ? 'Once per customer' : `${o.perCustomerLimit} uses per customer`}</span>
                 ) : null}

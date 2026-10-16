@@ -9,7 +9,7 @@ import { SUPPORT_PHONE, phoneLink, formatPhone } from '../utils/contact';
 import { profilePhotoUrl } from '../api/portal';
 
 const linkClass = ({ isActive }) =>
-  `rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-700 hover:text-blue-600'}`;
+  `rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${isActive ? 'text-accent-600' : 'text-slate-700 hover:text-accent-600'}`;
 
 // `overlay` = sits on top of the home page hero (no background of its own).
 // On phones the call button and "Login / Signup" stay in the bar itself — only the page links go in
@@ -21,16 +21,17 @@ export default function Navbar({ overlay = false }) {
 
   async function handleLogout() {
     setOpen(false);
+    // Go home first: logging out on a members-only page would otherwise bounce to the login page.
+    navigate('/', { replace: true });
     await logout();
     toast.success('Logged out');
-    navigate('/', { replace: true });
   }
 
-  const carsLink = BOOKING_ENABLED ? { to: '/book', label: 'Book a Car' } : { to: '/cars', label: 'Our Cars' };
+  const homeLink = { to: '/', label: 'Home', end: true };
   const links = customer
-    ? [carsLink, { to: '/trips', label: 'My Trips' }, { to: '/documents', label: 'Documents' }, { to: '/profile', label: 'Profile' }]
+    ? [homeLink, ...(BOOKING_ENABLED ? [{ to: '/book', label: 'Book a Car' }] : []), { to: '/trips', label: 'My Trips' }, { to: '/documents', label: 'Documents' }, { to: '/profile', label: 'Profile' }]
     : [
-        carsLink,
+        homeLink,
         { to: '/#reviews', label: 'Reviews', hash: true },
         { to: '/#faq', label: "FAQ's", hash: true },
         { to: '/#contact', label: 'Contact Us', hash: true },
@@ -48,11 +49,11 @@ export default function Navbar({ overlay = false }) {
         <nav className="hidden items-center gap-1 lg:flex">
           {links.map((l) =>
             l.hash ? (
-              <a key={l.to} href={l.to} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-blue-600">
+              <a key={l.to} href={l.to} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-accent-600">
                 {l.label}
               </a>
             ) : (
-              <NavLink key={l.to} to={l.to} className={linkClass}>
+              <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
                 {l.label}
               </NavLink>
             )
@@ -63,7 +64,7 @@ export default function Navbar({ overlay = false }) {
           <a
             href={phoneLink()}
             aria-label={`Call us on ${formatPhone()}`}
-            className="flex flex-shrink-0 items-center gap-2 rounded-full border border-slate-300 bg-white/80 p-2 text-sm font-bold text-navy backdrop-blur transition-colors hover:border-blue-400 hover:text-blue-700 sm:px-3.5 sm:py-2"
+            className="flex flex-shrink-0 items-center gap-2 rounded-full border border-slate-300 bg-white/80 p-2 text-sm font-bold text-primary backdrop-blur transition-colors hover:border-accent-300 hover:text-accent-700 sm:px-3.5 sm:py-2"
           >
             <PhoneIcon className="h-4.5 w-4.5" />
             <span className="hidden whitespace-nowrap sm:inline">{formatPhone()}</span>
@@ -75,7 +76,7 @@ export default function Navbar({ overlay = false }) {
             to="/profile"
             aria-label="My profile"
             title={customer.name}
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-600 to-navy text-sm font-bold text-white ring-2 ring-white shadow-md sm:h-10 sm:w-10"
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary-light to-primary-dark text-sm font-bold text-white ring-2 ring-white shadow-md sm:h-10 sm:w-10"
           >
             {customer.photoVersion ? (
               <img src={profilePhotoUrl(customer.photoVersion)} alt="" className="h-full w-full object-cover" />
@@ -96,7 +97,7 @@ export default function Navbar({ overlay = false }) {
           <Link
             to="/login"
             onClick={() => setOpen(false)}
-            className="flex-shrink-0 whitespace-nowrap rounded-full bg-navy px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-navy/25 transition-colors hover:bg-ink sm:px-6 sm:py-2.5 sm:text-sm"
+            className="flex-shrink-0 whitespace-nowrap rounded-full bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primary-dark sm:px-6 sm:py-2.5 sm:text-sm"
           >
             Login / Signup
           </Link>
@@ -121,7 +122,7 @@ export default function Navbar({ overlay = false }) {
                   {l.label}
                 </a>
               ) : (
-                <NavLink key={l.to} to={l.to} className={linkClass} onClick={() => setOpen(false)}>
+                <NavLink key={l.to} to={l.to} end={l.end} className={linkClass} onClick={() => setOpen(false)}>
                   {l.label}
                 </NavLink>
               )

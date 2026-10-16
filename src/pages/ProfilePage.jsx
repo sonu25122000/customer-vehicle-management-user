@@ -55,7 +55,7 @@ function Avatar({ name, progress, photoVersion, uploading, onPick }) {
           cy="50"
           r={r}
           fill="none"
-          stroke="#2563eb"
+          stroke="var(--color-accent)"
           strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -63,20 +63,20 @@ function Avatar({ name, progress, photoVersion, uploading, onPick }) {
           className="transition-[stroke-dashoffset] duration-700"
         />
       </svg>
-      <div className="absolute inset-2.5 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-600 to-navy text-3xl font-extrabold text-white">
+      <div className="absolute inset-2.5 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary-light to-primary-dark text-3xl font-extrabold text-white">
         {showPhoto ? (
           <img src={profilePhotoUrl(photoVersion)} alt={name} className="h-full w-full object-cover" onError={() => setBrokenVersion(photoVersion)} />
         ) : (
           initials(name) || <UserIcon className="h-10 w-10" />
         )}
         {uploading && (
-          <span className="absolute inset-0 flex items-center justify-center bg-navy/60">
+          <span className="absolute inset-0 flex items-center justify-center bg-primary/60">
             <span className="h-7 w-7 animate-spin rounded-full border-2 border-white/40 border-t-white" />
           </span>
         )}
       </div>
       <label
-        className={`absolute bottom-0.5 right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-blue-600 shadow-md ring-1 ring-slate-200 transition-colors hover:bg-blue-50 ${
+        className={`absolute bottom-0.5 right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-accent-600 shadow-md ring-1 ring-slate-200 transition-colors hover:bg-accent-50 ${
           uploading ? 'pointer-events-none opacity-60' : 'cursor-pointer'
         }`}
         title={photoVersion ? 'Change photo' : 'Add a profile photo'}
@@ -114,7 +114,7 @@ function PasswordField({ label, value, onChange, autoComplete, placeholder }) {
           minLength={6}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 outline-none transition-colors focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 outline-none transition-colors focus:border-accent-300 focus:bg-white focus:ring-2 focus:ring-accent-100"
         />
         <button
           type="button"
@@ -165,7 +165,7 @@ function ChangePasswordForm({ onDone, onCancel }) {
         <button
           type="submit"
           disabled={saving}
-          className="cursor-pointer rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="cursor-pointer rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary shadow-md shadow-accent/20 hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? 'Saving...' : 'Update password'}
         </button>
@@ -177,7 +177,7 @@ function ChangePasswordForm({ onDone, onCancel }) {
 function Row({ icon: Icon, title, children, right }) {
   return (
     <div className="flex items-start gap-4 py-4">
-      <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+      <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-accent-50 text-accent-600 ring-1 ring-accent-100">
         <Icon className="h-6 w-6" />
       </span>
       <div className="min-w-0 flex-1">
@@ -194,7 +194,7 @@ function Section({ title, subtitle, action, children }) {
     <section>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+          <h2 className="text-lg font-bold text-primary">{title}</h2>
           <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>
         </div>
         {action}
@@ -270,14 +270,15 @@ export default function ProfilePage() {
   const years = Math.floor((Date.now() - new Date(profile.createdAt)) / (365.25 * 24 * 60 * 60 * 1000));
 
   async function handleLogout() {
+    // Go home first: this page is members-only, so logging out here would bounce to the login page.
+    navigate('/', { replace: true });
     await logout();
     toast.success('Logged out');
-    navigate('/', { replace: true });
   }
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">My Profile</h1>
+      <h1 className="text-xl font-extrabold text-primary sm:text-2xl">My Profile</h1>
 
       {/* Phone/tablet: one column. Desktop: summary card (sticky) on the left, the two sections on the right. */}
       <div className="mt-4 grid grid-cols-1 gap-8 lg:mt-6 lg:grid-cols-[320px_1fr] lg:items-start xl:grid-cols-[360px_1fr]">
@@ -303,7 +304,7 @@ export default function ProfilePage() {
               )}
               <button
                 onClick={() => setEditing(true)}
-                className="flex cursor-pointer items-center gap-2 text-lg font-bold text-slate-900 hover:text-blue-600"
+                className="flex cursor-pointer items-center gap-2 text-lg font-bold text-slate-900 hover:text-accent-600"
               >
                 {profile.name} <PencilIcon className="h-4 w-4 text-slate-500" />
               </button>
@@ -329,7 +330,7 @@ export default function ProfilePage() {
               </div>
               <div className="px-3 py-4 text-center sm:px-5 sm:text-left lg:px-3 lg:text-center">
                 <p className="flex items-center justify-center gap-1 text-2xl font-extrabold text-slate-900 sm:justify-start lg:justify-center">
-                  {profile.rating || 'NA'} <StarIcon className="h-5 w-5 text-amber-400" />
+                  {profile.rating || 'NA'} <StarIcon className="h-5 w-5 text-accent" />
                 </p>
                 <p className="text-xs text-slate-500">Rating</p>
               </div>
@@ -352,7 +353,7 @@ export default function ProfilePage() {
                   ? 'bg-emerald-50 text-emerald-800 ring-emerald-200'
                   : summary.rejected.length
                     ? 'bg-red-50 text-red-800 ring-red-200'
-                    : 'bg-blue-50 text-blue-800 ring-blue-200'
+                    : 'bg-accent-50 text-accent-800 ring-accent-200'
               }`}
             >
               {verificationMessage(summary)}
@@ -374,7 +375,7 @@ export default function ProfilePage() {
             <div className="pb-5 pt-1">
               <Link
                 to="/documents"
-                className="block w-full rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700"
+                className="block w-full rounded-xl bg-accent px-4 py-3 text-center text-sm font-bold text-primary shadow-md shadow-accent/20 transition-colors hover:bg-accent-600"
               >
                 {summary.verified ? 'View documents' : summary.missing.length || summary.rejected.length ? 'Upload documents' : 'View documents'}
               </Link>
@@ -388,7 +389,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => setEditing(true)}
                 aria-label="Edit personal details"
-                className="cursor-pointer rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-blue-600"
+                className="cursor-pointer rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-accent-600"
               >
                 <PencilIcon className="h-5 w-5" />
               </button>
@@ -417,7 +418,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => setChangingPassword(true)}
-                    className="cursor-pointer rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-bold text-blue-600 transition-colors hover:border-blue-200 hover:bg-blue-50"
+                    className="cursor-pointer rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-bold text-accent-600 transition-colors hover:border-accent-200 hover:bg-accent-50"
                   >
                     Change
                   </button>

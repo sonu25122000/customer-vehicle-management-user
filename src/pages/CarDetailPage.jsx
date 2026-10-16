@@ -14,13 +14,13 @@ import { DEFAULT_TITLE } from '../utils/site';
 function ParkingLocation({ location }) {
   return (
     <section className="mt-10" aria-labelledby="parking-heading">
-      <h2 id="parking-heading" className="text-xl font-extrabold text-navy sm:text-2xl">
+      <h2 id="parking-heading" className="text-xl font-extrabold text-primary sm:text-2xl">
         Parking Location
       </h2>
       <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 md:grid-cols-[1fr_1.4fr]">
         <div className="flex flex-col justify-center gap-3 p-5 sm:p-6">
           <p className="flex items-start gap-2.5 text-sm font-semibold text-slate-900">
-            <MapPinIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+            <MapPinIcon className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-600" />
             {parkingArea(location)}
           </p>
           <p className="text-xs text-slate-500">Pick up and drop off the car here, in Bengaluru.</p>
@@ -28,7 +28,7 @@ function ParkingLocation({ location }) {
             href={mapsLink(location)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-blue-600 hover:underline"
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-bold text-accent-600 hover:underline"
           >
             Open in Google Maps <ArrowRightIcon className="h-4 w-4" />
           </a>
@@ -49,7 +49,7 @@ function Stars({ value, size = 'h-4 w-4' }) {
   return (
     <span className="flex" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <StarIcon key={n} className={`${size} ${n <= Math.round(value) ? 'text-amber-400' : 'text-slate-200'}`} />
+        <StarIcon key={n} className={`${size} ${n <= Math.round(value) ? 'text-accent' : 'text-slate-200'}`} />
       ))}
     </span>
   );
@@ -74,7 +74,7 @@ function CarReviews({ carId, rating }) {
 
   return (
     <section className="mt-10" aria-labelledby="reviews-heading">
-      <h2 id="reviews-heading" className="text-xl font-extrabold text-navy sm:text-2xl">
+      <h2 id="reviews-heading" className="text-xl font-extrabold text-primary sm:text-2xl">
         Our Reviews
       </h2>
       {reviews === null ? (
@@ -86,7 +86,7 @@ function CarReviews({ carId, rating }) {
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
           <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
-            <p className="text-4xl font-extrabold text-navy">{(rating?.avg ?? 0).toFixed(1)}</p>
+            <p className="text-4xl font-extrabold text-primary">{(rating?.avg ?? 0).toFixed(1)}</p>
             <Stars value={rating?.avg ?? 0} size="h-5 w-5" />
             <p className="mt-1 text-sm text-slate-500">
               {total} rating{total === 1 ? '' : 's'}
@@ -95,9 +95,9 @@ function CarReviews({ carId, rating }) {
               {breakdown.map(({ n, count }) => (
                 <div key={n} className="flex items-center gap-2 text-xs text-slate-600">
                   <span className="w-3">{n}</span>
-                  <StarIcon className="h-3 w-3 text-amber-400" />
+                  <StarIcon className="h-3 w-3 text-accent" />
                   <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                    <span className="block h-full rounded-full bg-amber-400" style={{ width: `${(count / total) * 100}%` }} />
+                    <span className="block h-full rounded-full bg-accent" style={{ width: `${(count / total) * 100}%` }} />
                   </span>
                   <span className="w-6 text-right text-slate-400">{count}</span>
                 </div>
@@ -109,7 +109,7 @@ function CarReviews({ carId, rating }) {
               <li key={r._id} className="rounded-2xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">{r.name.charAt(0)}</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">{r.name.charAt(0)}</span>
                     <div>
                       <p className="text-sm font-bold text-slate-900">{r.name}</p>
                       <p className="text-xs text-slate-400">{formatReviewDate(r.ratedAt)}</p>
@@ -119,7 +119,7 @@ function CarReviews({ carId, rating }) {
                 </div>
                 {r.review && (
                   <p className="mt-3 flex gap-2 text-sm leading-relaxed text-slate-700">
-                    <QuoteIcon className="h-4 w-4 flex-shrink-0 text-blue-200" /> {r.review}
+                    <QuoteIcon className="h-4 w-4 flex-shrink-0 text-accent-300" /> {r.review}
                   </p>
                 )}
               </li>
@@ -161,9 +161,9 @@ export default function CarDetailPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <CarIcon className="mx-auto h-12 w-12 text-slate-300" />
-        <h1 className="mt-3 text-xl font-extrabold text-slate-900">This car isn&apos;t available</h1>
+        <h1 className="mt-3 text-xl font-extrabold text-primary">This car isn&apos;t available</h1>
         <p className="mt-1 text-sm text-slate-500">It may have been taken off the site. Have a look at our other cars.</p>
-        <Link to="/cars" className="mt-5 inline-block rounded-full bg-navy px-6 py-2.5 text-sm font-bold text-white">
+        <Link to="/cars" className="mt-5 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white">
           Browse cars
         </Link>
       </div>
@@ -181,7 +181,7 @@ export default function CarDetailPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-5 sm:px-6 sm:pt-8 lg:px-8">
       <nav className="mb-4 flex items-center gap-2 text-sm text-slate-500">
-        <Link to="/cars" className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:underline">
+        <Link to="/cars" className="inline-flex items-center gap-1 font-semibold text-accent-600 hover:underline">
           <ArrowLeftIcon className="h-4 w-4" /> All cars
         </Link>
         <span>/</span>
@@ -195,8 +195,8 @@ export default function CarDetailPage() {
 
         <div className="flex flex-col gap-5">
           <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-            <p className="text-xs font-bold uppercase tracking-wider text-blue-600">{car.make}</p>
-            <h1 className="text-2xl font-extrabold text-navy sm:text-3xl">{car.model}</h1>
+            <p className="text-xs font-bold uppercase tracking-wider text-accent-600">{car.make}</p>
+            <h1 className="text-2xl font-extrabold text-primary sm:text-3xl">{car.model}</h1>
             <div className="mt-2 flex items-center gap-2 text-sm">
               {car.rating ? (
                 <>
@@ -221,12 +221,12 @@ export default function CarDetailPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-5 flex items-end justify-between rounded-xl bg-navy px-4 py-3 text-white">
-              <span className="text-sm text-blue-100">Price</span>
+            <div className="mt-5 flex items-end justify-between rounded-xl bg-primary px-4 py-3 text-white">
+              <span className="text-sm text-primary-100">Price</span>
               {car.pricePerDay ? (
                 <span>
                   <span className="text-2xl font-extrabold">{formatMoney(car.pricePerDay)}</span>
-                  <span className="text-sm text-blue-100"> / day</span>
+                  <span className="text-sm text-primary-100"> / day</span>
                 </span>
               ) : (
                 <span className="font-semibold">On request</span>
@@ -235,10 +235,10 @@ export default function CarDetailPage() {
           </div>
 
           <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-            <h2 className="mb-4 text-base font-bold text-slate-900">Check availability</h2>
+            <h2 className="mb-4 text-base font-bold text-primary">Check availability</h2>
             <EnquiryBar carName={name} compact />
             {SUPPORT_PHONE && (
-              <a href={phoneLink()} className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 hover:underline">
+              <a href={phoneLink()} className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-accent-600 hover:underline">
                 <PhoneIcon className="h-4 w-4" /> Or call {formatPhone()}
               </a>
             )}

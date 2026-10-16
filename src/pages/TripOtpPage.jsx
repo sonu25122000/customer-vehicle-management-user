@@ -70,7 +70,7 @@ function OtpInput({ value, onChange, disabled, autoFocus }) {
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onFocus={(e) => e.target.select()}
-          className="h-13 w-11 rounded-xl border border-slate-300 bg-white text-center font-mono text-2xl font-bold text-slate-900 outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 sm:h-14 sm:w-12"
+          className="h-13 w-11 rounded-xl border border-slate-300 bg-white text-center font-mono text-2xl font-bold text-slate-900 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-100 disabled:bg-slate-100 sm:h-14 sm:w-12"
         />
       ))}
     </div>
@@ -148,12 +148,12 @@ export default function TripOtpPage({ mode }) {
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
           <CheckIcon className="h-8 w-8" />
         </span>
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">{isStart ? 'Trip Started!' : 'Trip Completed!'}</h1>
+        <h1 className="mt-4 text-2xl font-extrabold text-primary">{isStart ? 'Trip Started!' : 'Trip Completed!'}</h1>
         <p className="mt-2 text-sm text-slate-500">{done.message}</p>
         <div className="mt-8 flex flex-col items-center gap-3">
           <Link
             to="/trips"
-            className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700"
+            className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 hover:bg-accent-600"
           >
             {isStart ? 'Go to My Trips' : 'Rate your ride in My Trips'}
           </Link>
@@ -175,7 +175,7 @@ export default function TripOtpPage({ mode }) {
 
   return (
     <div className="mx-auto max-w-lg px-4 pb-24 pt-6 sm:pt-10">
-      <Link to="/trips" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-blue-600">
+      <Link to="/trips" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-accent-600">
         <ArrowLeftIcon className="h-4 w-4" /> My Trips
       </Link>
 
@@ -202,11 +202,11 @@ export default function TripOtpPage({ mode }) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5 p-6">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-8 ring-blue-50/60">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-50 text-accent-600 ring-8 ring-accent-50/60">
             <Icon className="h-6 w-6" />
           </span>
           <div className="text-center">
-            <h1 className="text-lg font-extrabold text-slate-900">{isStart ? 'Enter the start OTP' : 'Enter the end OTP'}</h1>
+            <h1 className="text-lg font-extrabold text-primary">{isStart ? 'Enter the start OTP' : 'Enter the end OTP'}</h1>
             <p className="mt-1 text-sm text-slate-500">
               {isStart
                 ? 'Our team will share a 6-digit OTP when you pick up the car.'
@@ -217,7 +217,7 @@ export default function TripOtpPage({ mode }) {
           <button
             type="submit"
             disabled={submitting || otp.length !== OTP_LENGTH}
-            className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full cursor-pointer rounded-lg bg-accent px-4 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? 'Checking...' : isStart ? 'Start Trip' : 'End Trip'}
           </button>
@@ -225,7 +225,7 @@ export default function TripOtpPage({ mode }) {
             href={whatsappLink(`Hi Roam Wheels! Please share the ${mode} OTP for my trip ${trip.tripId}.`)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+            className="flex items-center gap-1.5 text-xs font-semibold text-accent-600 hover:underline"
           >
             <WhatsAppIcon className="h-4 w-4" /> Don&apos;t have the OTP? Ask us on WhatsApp
           </a>

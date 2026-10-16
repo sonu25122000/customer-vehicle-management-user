@@ -3,7 +3,7 @@ import { fetchTestimonials } from '../api/portal';
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, QuoteIcon, StarIcon } from './icons';
 
 const ROTATE_MS = 5000;
-const AVATAR_COLOURS = ['bg-blue-600', 'bg-emerald-600', 'bg-violet-600', 'bg-amber-500', 'bg-rose-500', 'bg-cyan-600', 'bg-navy'];
+const AVATAR_COLOURS = ['bg-accent', 'bg-emerald-600', 'bg-violet-600', 'bg-amber-500', 'bg-rose-500', 'bg-cyan-600', 'bg-primary'];
 
 // "Today", "3 days ago", or "Oct 2026" for older reviews.
 function reviewedWhen(value) {
@@ -40,10 +40,10 @@ function ReviewCard({ review, hidden }) {
       <div className="flex items-center justify-between">
         <span className="flex" aria-label={`${review.rating} out of 5 stars`}>
           {[1, 2, 3, 4, 5].map((n) => (
-            <StarIcon key={n} className={`h-5 w-5 ${n <= review.rating ? 'text-amber-400' : 'text-slate-200'}`} />
+            <StarIcon key={n} className={`h-5 w-5 ${n <= review.rating ? 'text-accent' : 'text-slate-200'}`} />
           ))}
         </span>
-        <QuoteIcon className="h-8 w-8 text-blue-100" />
+        <QuoteIcon className="h-8 w-8 text-accent-200" />
       </div>
       <blockquote className="mt-4 line-clamp-6 flex-1 text-[0.95rem] leading-relaxed text-slate-700">&ldquo;{review.text}&rdquo;</blockquote>
       <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
@@ -102,13 +102,13 @@ export default function ReviewsCarousel({ className = '' }) {
   const go = (delta) => setIndex((i) => (Math.min(i, positions - 1) + delta + positions) % positions);
 
   return (
-    <section id="reviews" className={`scroll-mt-24 bg-gradient-to-b from-white to-blue-50/70 px-4 py-14 sm:px-6 sm:py-20 lg:px-8 ${className}`}>
+    <section id="reviews" className={`scroll-mt-24 bg-gradient-to-b from-white to-accent-50/70 px-4 py-14 sm:px-6 sm:py-20 lg:px-8 ${className}`}>
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Reviews</p>
-            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">
-              What Our <span className="text-blue-600">Customers Say</span>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">Reviews</p>
+            <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
+              What Our <span className="text-accent-600">Customers Say</span>
             </h2>
             <p className="mt-2 text-sm text-slate-500">The latest reviews from people who rented with us in Bengaluru.</p>
           </div>
@@ -118,7 +118,7 @@ export default function ReviewsCarousel({ className = '' }) {
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous reviews"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-navy hover:text-white"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-primary hover:text-white"
               >
                 <ChevronLeftIcon className="h-5 w-5" />
               </button>
@@ -126,7 +126,7 @@ export default function ReviewsCarousel({ className = '' }) {
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next reviews"
-                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-navy text-white shadow-sm transition-colors hover:bg-ink"
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-sm transition-colors hover:bg-primary-dark"
               >
                 <ChevronRightIcon className="h-5 w-5" />
               </button>
@@ -169,7 +169,7 @@ export default function ReviewsCarousel({ className = '' }) {
                 aria-label={`Show reviews ${i + 1}`}
                 aria-current={i === index}
                 onClick={() => setIndex(i)}
-                className={`h-2 cursor-pointer rounded-full transition-all ${i === index ? 'w-7 bg-navy' : 'w-2 bg-slate-300 hover:bg-slate-400'}`}
+                className={`h-2 cursor-pointer rounded-full transition-all ${i === index ? 'w-7 bg-primary' : 'w-2 bg-slate-300 hover:bg-slate-400'}`}
               />
             ))}
           </div>

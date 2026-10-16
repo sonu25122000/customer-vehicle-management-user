@@ -54,7 +54,7 @@ export default function RateTripModal({ trip, onClose, onRated }) {
               onClick={() => setRating(n)}
               className="cursor-pointer p-1 transition-transform hover:scale-110"
             >
-              <StarIcon className={`h-9 w-9 ${n <= shown ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+              <StarIcon className={`h-9 w-9 ${n <= shown ? 'fill-accent text-accent' : 'text-slate-300'}`} />
             </button>
           ))}
         </div>
@@ -65,12 +65,12 @@ export default function RateTripModal({ trip, onClose, onRated }) {
           value={review}
           onChange={(e) => setReview(e.target.value)}
           placeholder="Tell others about the car and your trip (optional) — your review appears on the car's page"
-          className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          className="w-full resize-none rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent-100"
         />
         <button
           type="submit"
           disabled={saving}
-          className="w-full cursor-pointer rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+          className="w-full cursor-pointer rounded-lg bg-accent px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-accent-600 disabled:cursor-wait disabled:opacity-60"
         >
           {saving ? 'Saving...' : 'Submit Rating'}
         </button>

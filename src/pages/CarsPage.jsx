@@ -41,11 +41,11 @@ function FilterPanel({ cars, filters, setFilters }) {
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
       <div className="flex items-center justify-between">
-        <p className="flex items-center gap-2 text-base font-bold text-navy">
+        <p className="flex items-center gap-2 text-base font-bold text-primary">
           <FilterIcon className="h-5 w-5" /> Filter
         </p>
         {activeCount > 0 && (
-          <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="cursor-pointer text-sm font-semibold text-blue-600 hover:underline">
+          <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="cursor-pointer text-sm font-semibold text-accent-600 hover:underline">
             Clear all
           </button>
         )}
@@ -72,7 +72,7 @@ function FilterPanel({ cars, filters, setFilters }) {
                           [group.key]: checked ? f[group.key].filter((v) => v !== opt) : [...f[group.key], opt],
                         }))
                       }
-                      className="h-4.5 w-4.5 cursor-pointer rounded border-slate-300 text-navy focus:ring-blue-500"
+                      className="h-4.5 w-4.5 cursor-pointer rounded border-slate-300 text-primary focus:ring-accent"
                     />
                     <span className={`flex-1 ${group.keepCase ? '' : 'uppercase tracking-wide'}`}>{opt}</span>
                     <span className="text-xs text-slate-400">{count}</span>
@@ -129,8 +129,8 @@ export default function CarsPage() {
 
   return (
     <div className="pb-24">
-      {/* Dates band (Mychoize-style): pick dates once, every "Enquire" on this page uses them. */}
-      <div className="border-b border-slate-200 bg-[#e9edf6]">
+      {/* Dates band (Mychoize-style): pick dates once, every "Book Now" on this page uses them. */}
+      <div className="border-b border-slate-200 bg-primary-100">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <EnquiryBar />
         </div>
@@ -139,8 +139,8 @@ export default function CarsPage() {
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-navy sm:text-2xl">Self-Drive Cars on Rent in Bengaluru</h1>
-            <p className="text-sm text-slate-500">Found one you like? Enquire on WhatsApp with your dates and we&apos;ll set it up for you.</p>
+            <h1 className="text-xl font-extrabold text-primary sm:text-2xl">Self-Drive Cars on Rent in Bengaluru</h1>
+            <p className="text-sm text-slate-500">Found one you like? Tap Book Now and we&apos;ll set it up for you on WhatsApp.</p>
           </div>
           <div className="relative w-full sm:max-w-sm">
             <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -150,7 +150,7 @@ export default function CarsPage() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Search make, model, type or fuel"
               aria-label="Search cars"
-              className="w-full rounded-full border border-slate-300 bg-white py-2.5 pl-11 pr-10 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-full border border-slate-300 bg-white py-2.5 pl-11 pr-10 text-sm text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-accent focus:ring-2 focus:ring-accent-100"
             />
             {input && (
               <button
@@ -193,7 +193,7 @@ export default function CarsPage() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-semibold text-navy ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-blue-200"
+                  className="cursor-pointer rounded-lg bg-white px-3 py-2 text-sm font-semibold text-primary ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-accent-200"
                 >
                   {SORTS.map((s) => (
                     <option key={s.key} value={s.key}>
@@ -213,7 +213,7 @@ export default function CarsPage() {
                     onClick={() => setView(key)}
                     aria-label={label}
                     aria-pressed={view === key}
-                    className={`cursor-pointer px-3 py-2 ${view === key ? 'bg-navy text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                    className={`cursor-pointer px-3 py-2 ${view === key ? 'bg-primary text-white' : 'text-slate-500 hover:bg-slate-50'}`}
                   >
                     <Icon className="h-4.5 w-4.5" />
                   </button>
