@@ -5,7 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PageLayout from './components/PageLayout';
 import { WhatsAppFab } from './components/WhatsAppButton';
 import HomePage from './pages/HomePage';
-import { LoginPage, SignupPage, ChangePasswordPage } from './pages/AuthPages';
+import { LoginPage, SignupPage, ChangePasswordPage, ForgotPasswordPage, ResetPasswordPage } from './pages/AuthPages';
 import ProfilePage from './pages/ProfilePage';
 import DocumentsPage from './pages/DocumentsPage';
 import TripsPage from './pages/TripsPage';
@@ -47,6 +47,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/change-password" element={<ChangePasswordPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<PageLayout />}>
           {/* Open to everyone — no login needed to browse cars. */}
           <Route path="/cars" element={<CarsPage />} />

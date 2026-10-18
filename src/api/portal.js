@@ -23,6 +23,21 @@ export function changePassword(currentPassword, newPassword) {
   return api.post('/portal/auth/change-password', { currentPassword, newPassword }).then((res) => res.data.customer);
 }
 
+// Forgot password: emails a reset link to the account's email. `identifier` is the mobile number or email.
+export function forgotPassword(identifier) {
+  return api.post('/portal/auth/forgot-password', { identifier }).then((res) => res.data);
+}
+
+// Whether a reset link still works — resolves to { name } (first name), rejects if it's invalid/expired.
+export function checkResetToken(token) {
+  return api.post('/portal/auth/reset-password/check', { token }).then((res) => res.data.data);
+}
+
+// Sets the new password with the emailed link and logs in — resolves to the customer.
+export function resetPassword(token, password) {
+  return api.post('/portal/auth/reset-password', { token, password }).then((res) => res.data.customer);
+}
+
 export function fetchProfile() {
   return api.get('/portal/profile').then((res) => res.data.data);
 }

@@ -37,6 +37,14 @@ export function AuthProvider({ children }) {
     return c;
   }, []);
 
+  // Forgot password: the emailed link sets a new password and logs them in.
+  const resetPassword = useCallback(async (token, password) => {
+    const c = await portal.resetPassword(token, password);
+    setSignedOut(false);
+    setCustomer(c);
+    return c;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await portal.logout();
@@ -47,8 +55,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ customer, checking: customer === undefined, signedOut, setCustomer, login, signup, logout, changePassword }),
-    [customer, signedOut, login, signup, logout, changePassword]
+    () => ({ customer, checking: customer === undefined, signedOut, setCustomer, login, signup, logout, changePassword, resetPassword }),
+    [customer, signedOut, login, signup, logout, changePassword, resetPassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
