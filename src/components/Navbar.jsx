@@ -45,7 +45,8 @@ function Avatar({ customer, className }) {
   );
 }
 
-// `overlay` = sits on top of the home page hero (no background of its own).
+// `overlay` = the home page: transparent over the hero, and stays at the top while scrolling, with a
+// white background once the page has scrolled (other pages' header is always sticky and white).
 // On phones the call button and "Login / Signup" stay in the bar itself; the page links open in a
 // panel that slides in from the right.
 export default function Navbar({ overlay = false }) {
@@ -53,6 +54,16 @@ export default function Navbar({ overlay = false }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const close = () => setOpen(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Home page: give the fixed header its white background once the hero starts scrolling under it.
+  useEffect(() => {
+    if (!overlay) return undefined;
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [overlay]);
 
   // While the menu is open: no page scrolling behind it, and Escape closes it.
   useEffect(() => {
@@ -176,7 +187,13 @@ export default function Navbar({ overlay = false }) {
 
   return (
     <header
-      className={`${overlay ? 'absolute inset-x-0 top-0 z-30' : 'sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur'}`}
+      className={`${
+        overlay
+          ? `fixed inset-x-0 top-0 z-30 transition-[background-color,box-shadow,border-color] duration-200 ${
+              scrolled ? 'border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur' : 'border-b border-transparent'
+            }`
+          : 'sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur'
+      }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:h-20 sm:gap-4 sm:px-6 lg:px-8">
         <Link to="/" className="mr-auto flex-shrink-0" onClick={close}>
