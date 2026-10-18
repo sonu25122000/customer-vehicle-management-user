@@ -91,7 +91,9 @@ export default function NewsletterSection() {
                   <input
                     type="email"
                     inputMode="email"
-                    autoComplete="email"
+                    // No browser autofill: the box should start empty, not with a saved address.
+                    name="newsletter-email"
+                    autoComplete="off"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
