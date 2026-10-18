@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { fetchProfile, profilePhotoUrl, removeProfilePhoto, uploadProfilePhoto } from '../api/portal';
 import { errorMessage } from '../api/client';
@@ -7,11 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ProfileForm from '../components/ProfileForm';
 import StatusChip from '../components/StatusChip';
-import { DOCUMENTS, documentStatus, verificationMessage, verificationSummary } from '../utils/documents';
+import DocumentList from '../components/DocumentList';
+import { DOCUMENTS, verificationMessage, verificationSummary } from '../utils/documents';
 import { compressImage } from '../utils/compressImage';
 import {
-  IdCardIcon,
-  LicenseIcon,
   CameraIcon,
   PencilIcon,
   UserIcon,
@@ -23,8 +22,6 @@ import {
   EyeIcon,
   KeyIcon,
 } from '../components/icons';
-
-const DOCUMENT_ICONS = { aadhaar: IdCardIcon, drivingLicence: LicenseIcon, selfie: CameraIcon };
 
 function initials(name = '') {
   return name
@@ -42,7 +39,7 @@ const LOGOUT_LINK_CLASS =
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-// Avatar with a progress ring showing how many of the 3 verification documents are verified. Shows the
+// Avatar with a progress ring showing how many of the verification documents are verified. Shows the
 // customer's profile picture when they've uploaded one; the camera button picks a new one.
 function Avatar({ name, progress, photoVersion, uploading, onPick }) {
   const r = 46;
@@ -361,28 +358,15 @@ export default function ProfilePage() {
             >
               {verificationMessage(summary)}
             </p>
-            <div className="divide-y divide-dashed divide-slate-200">
-              {DOCUMENTS.map((d) => {
-                const doc = summary.byType[d.type];
-                return (
-                  <Row key={d.type} icon={DOCUMENT_ICONS[d.type]} title={d.label} right={<StatusChip status={documentStatus(doc)} />}>
-                    {doc?.status === 'Rejected' && doc.rejectionReason ? (
-                      <span className="text-red-600">Not accepted: {doc.rejectionReason}</span>
-                    ) : (
-                      d.hint
-                    )}
-                  </Row>
-                );
-              })}
-            </div>
-            <div className="pb-5 pt-1">
-              <Link
-                to="/documents"
-                className="block w-full rounded-xl bg-accent px-4 py-3 text-center text-sm font-bold text-primary shadow-md shadow-accent/20 transition-colors hover:bg-accent-600"
-              >
-                {summary.verified ? 'View documents' : summary.missing.length || summary.rejected.length ? 'Upload documents' : 'View documents'}
-              </Link>
-            </div>
+            {/* Upload, replace and view each document right here — picking a file uploads it. */}
+            <DocumentList
+              profile={profile}
+              onUploaded={(result) => {
+                setProfile((p) => ({ ...p, ...result }));
+                setCustomer((c) => (c ? { ...c, profileVerified: result.profileVerified } : c));
+              }}
+            />
+            <p className="pb-4 text-center text-xs text-slate-400">Replacing a verified document sends just that one for review again.</p>
           </Section>
 
           <Section

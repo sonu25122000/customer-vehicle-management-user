@@ -24,7 +24,7 @@ export default function InstagramSection() {
             </span>
             <h2 className="mt-4 text-2xl font-extrabold leading-tight sm:text-4xl">Follow the ride on Instagram</h2>
             <p className="mt-3 max-w-md text-sm text-white/90 sm:text-base">
-              Our latest cars, weekend road-trip ideas, customer journeys and Instagram-only offers — all in one place.
+              Our latest cars, weekend road-trip ideas, guest journeys and Instagram-only offers — all in one place.
             </p>
             <ul className="mt-5 flex flex-wrap gap-2">
               {TILES.map(({ icon: Icon, label }) => (

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
-export default function Modal({ title, onClose, children }) {
+// `wide` is for content that needs the room, e.g. viewing a document.
+export default function Modal({ title, onClose, children, wide = false }) {
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Escape') onClose();
@@ -15,7 +16,7 @@ export default function Modal({ title, onClose, children }) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl"
+        className={`max-h-[92dvh] w-full ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">

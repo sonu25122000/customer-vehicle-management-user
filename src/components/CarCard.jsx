@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import Carousel from './Carousel';
 import Modal from './Modal';
 import EnquiryBar from './EnquiryBar';
-import { formatMoney, vehicleName } from '../utils/format';
+import CarPrice from './CarPrice';
+import CallButton from './CallButton';
+import { vehicleName } from '../utils/format';
 import { parkingArea } from '../utils/location';
 import { CarIcon, FuelIcon, GearIcon, StarIcon, WhatsAppIcon, ArrowRightIcon, MapPinIcon } from './icons';
 
@@ -26,7 +28,8 @@ function Rating({ rating }) {
 }
 
 // A car as shown to visitors (no login needed): photos in the site-wide 4:3 frame, specs, price and the
-// customers' rating, with a WhatsApp enquiry (dates picked in a pop-up) instead of online booking.
+// customers' rating, with a WhatsApp enquiry (dates picked in a pop-up) instead of online booking, and a
+// Call button beside it.
 // layout="list" is the wide card on the Cars page (photo on the left from tablet up); "grid" stacks.
 // showRating={false} leaves the rating out (the home page doesn't show ratings).
 export default function CarCard({ car, layout = 'grid', showRating = true }) {
@@ -68,30 +71,24 @@ export default function CarCard({ car, layout = 'grid', showRating = true }) {
           </span>
         </p>
 
-        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-          <div>
-            {car.pricePerDay ? (
-              <>
-                <p className="text-xl font-extrabold leading-none text-slate-900">{formatMoney(car.pricePerDay)}</p>
-                <p className="mt-1 text-[0.7rem] text-slate-500">per day</p>
-              </>
-            ) : (
-              <p className="text-sm font-semibold text-slate-500">Price on request</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
+        <div className="mt-auto pt-4">
+          <div className="flex items-end justify-between gap-3">
+            <CarPrice car={car} />
             {list && (
               <Link to={`/cars/${car._id}`} className="hidden items-center gap-1 text-sm font-bold text-accent-600 hover:underline sm:inline-flex">
                 Details <ArrowRightIcon className="h-4 w-4" />
               </Link>
             )}
+          </div>
+          <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={() => setEnquiring(true)}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-primary shadow-md shadow-accent/25 transition-colors hover:bg-accent-600"
+              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-primary shadow-md shadow-accent/25 transition-colors hover:bg-accent-600"
             >
               <WhatsAppIcon className="h-4 w-4" /> Book Now
             </button>
+            <CallButton />
           </div>
         </div>
       </div>

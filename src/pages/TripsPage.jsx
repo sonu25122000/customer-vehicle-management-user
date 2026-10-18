@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { fetchProfile, fetchTrips, vehiclePhotoUrl } from '../api/portal';
 import { errorMessage } from '../api/client';
@@ -264,15 +264,16 @@ function TripCard({ trip, verified, onStart, onRate }) {
   );
 }
 
+// Phones: icon above the number, centred (three side by side don't fit in a row). Bigger screens: side by side.
 function Stat({ icon: Icon, value, label, tone }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
-      <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${tone}`}>
+    <div className="flex min-w-0 flex-col items-center gap-2 rounded-2xl bg-white px-2 py-3 text-center shadow-sm ring-1 ring-slate-200 sm:flex-row sm:gap-3 sm:px-4 sm:text-left">
+      <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${tone}`}>
         <Icon className="h-5 w-5" />
       </span>
-      <div>
+      <div className="min-w-0">
         <p className="text-xl font-extrabold leading-none text-slate-900">{value}</p>
-        <p className="mt-1 text-xs text-slate-500">{label}</p>
+        <p className="mt-1 truncate text-xs text-slate-500">{label}</p>
       </div>
     </div>
   );
@@ -280,11 +281,22 @@ function Stat({ icon: Icon, value, label, tone }) {
 
 export default function TripsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Set by the end-trip page: open the rating pop-up for that trip as soon as the trips load.
+  const rateTripId = location.state?.rateTripId;
   const { customer } = useAuth();
   const [trips, setTrips] = useState(null);
   const [profile, setProfile] = useState(null);
   const [tab, setTab] = useState('all');
   const [rating, setRating] = useState(null);
+
+  useEffect(() => {
+    if (!rateTripId || !trips) return;
+    const ended = trips.find((t) => t._id === rateTripId);
+    if (ended?.status === 'Completed' && !ended.customerRatedAt) setRating(ended);
+    // Only once — not again on refresh or when coming back to this page.
+    navigate(location.pathname, { replace: true, state: null });
+  }, [rateTripId, trips, navigate, location.pathname]);
 
   useEffect(() => {
     fetchTrips()
@@ -349,7 +361,7 @@ export default function TripsPage() {
         </div>
 
         {trips && list.length > 0 && (
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
             <Stat icon={ClockIcon} value={countFor('Yet to Start')} label="Upcoming" tone="bg-accent-50 text-accent-600" />
             <Stat icon={RouteIcon} value={countFor('On Trip')} label="Ongoing" tone="bg-amber-50 text-amber-600" />
             <Stat icon={CheckIcon} value={countFor('Completed')} label="Completed" tone="bg-emerald-50 text-emerald-600" />

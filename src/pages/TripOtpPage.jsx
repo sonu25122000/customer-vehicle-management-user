@@ -5,7 +5,7 @@ import { fetchProfile, fetchTrip, submitTripOtp, vehiclePhotoUrl } from '../api/
 import { errorMessage } from '../api/client';
 import { verificationMessage, verificationSummary } from '../utils/documents';
 import { formatDate, formatTime, vehicleName } from '../utils/format';
-import { ArrowLeftIcon, CarIcon, CheckIcon, KeyIcon, FlagIcon, WhatsAppIcon } from '../components/icons';
+import { ArrowLeftIcon, CarIcon, KeyIcon, FlagIcon, WhatsAppIcon } from '../components/icons';
 import { whatsappLink } from '../utils/contact';
 
 const OTP_LENGTH = 6;
@@ -78,6 +78,7 @@ function OtpInput({ value, onChange, disabled, autoFocus }) {
 }
 
 // /trips/:id/start and /trips/:id/end — the customer enters the OTP our team shares at pickup / return.
+// On success it goes straight back to My Trips; after ending a trip, My Trips opens the rating pop-up.
 export default function TripOtpPage({ mode }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -86,7 +87,6 @@ export default function TripOtpPage({ mode }) {
   const [blocked, setBlocked] = useState(null); // redirect target when this step isn't possible
   const [otp, setOtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,7 +126,8 @@ export default function TripOtpPage({ mode }) {
     setSubmitting(true);
     try {
       const res = await submitTripOtp(id, mode, otp);
-      setDone(res);
+      toast.success(res.message || (isStart ? 'Your trip has started.' : 'Trip completed.'), { duration: 5000 });
+      navigate('/trips', { replace: true, state: isStart ? undefined : { rateTripId: id } });
     } catch (err) {
       if (err?.response?.data?.code === 'PROFILE_NOT_VERIFIED') {
         toast(err.response.data.message, { icon: '🪪', duration: 5000 });
@@ -141,26 +142,6 @@ export default function TripOtpPage({ mode }) {
   }
 
   if (blocked) return <Navigate to={blocked} replace />;
-
-  if (done) {
-    return (
-      <div className="mx-auto max-w-lg px-4 pb-24 pt-12 text-center">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-          <CheckIcon className="h-8 w-8" />
-        </span>
-        <h1 className="mt-4 text-2xl font-extrabold text-primary">{isStart ? 'Trip Started!' : 'Trip Completed!'}</h1>
-        <p className="mt-2 text-sm text-slate-500">{done.message}</p>
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <Link
-            to="/trips"
-            className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-primary shadow-md shadow-accent/20 hover:bg-accent-600"
-          >
-            {isStart ? 'Go to My Trips' : 'Rate your ride in My Trips'}
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (!trip) {
     return (

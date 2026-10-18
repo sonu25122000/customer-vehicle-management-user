@@ -35,16 +35,19 @@ function EnvelopeArt({ className }) {
   );
 }
 
-// "Let us know your email" — collects emails for offers from visitors who aren't logged in (stored by
-// POST /api/portal/subscribe). Logged-in customers never see it.
+// "Let us know your email" — collects emails for offers (stored by POST /api/portal/subscribe, which
+// also sends a welcome email). Shown to everyone; for a logged-in customer the email on their profile is
+// filled in.
 export default function NewsletterSection() {
   const { customer, checking } = useAuth();
-  const [email, setEmail] = useState('');
+  const [typed, setTyped] = useState(null);
+  const email = typed ?? customer?.email ?? '';
+  const setEmail = setTyped;
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
-  if (checking || customer) return null;
+  if (checking) return null;
 
   async function handleSubmit(e) {
     e.preventDefault();

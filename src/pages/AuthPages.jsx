@@ -148,7 +148,7 @@ export function LoginPage() {
 
   return (
     <AuthShell
-      title="Customer Login"
+      title="Guest Login"
       subtitle="Log in to book cars and see your trips"
       footer={
         <>

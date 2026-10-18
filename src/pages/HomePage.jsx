@@ -30,6 +30,8 @@ import {
 import { fetchVehicles } from '../api/portal';
 import { SUPPORT_PHONE, SUPPORT_EMAIL, phoneLink, formatPhone } from '../utils/contact';
 import { SITE_METRICS } from '../utils/site';
+import { useTripDates } from '../utils/tripDates';
+import { formatDate, formatTime } from '../utils/format';
 import heroImage from '../assets/login-hero.png';
 
 const FEATURED_COUNT = 6;
@@ -38,7 +40,7 @@ const METRIC_ICONS = [RouteIcon, UserIcon, StarIcon, CheckIcon];
 // Our numbers (utils/site.js), in a band overlapping the bottom of the hero.
 function MetricsBand() {
   return (
-    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-white to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
+    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-slate-50 to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-primary shadow-2xl shadow-primary/25 lg:grid-cols-4">
         {SITE_METRICS.map((m, i) => {
           const Icon = METRIC_ICONS[i % METRIC_ICONS.length];
@@ -67,23 +69,35 @@ function MetricsBand() {
   );
 }
 
-// A few of our cars, right on the home page — anyone can browse, no login needed.
+// Cars free for the pick-up / return picked in the hero, right under it — they update as soon as the
+// dates change. Anyone can browse, no login needed.
 function FeaturedCars() {
   const navigate = useNavigate();
-  const [cars, setCars] = useState(null);
+  const [dates] = useTripDates();
+  const { startDate, endDate } = dates;
+  // The last finished fetch, keyed by the dates it was for (still loading while they differ).
+  const [result, setResult] = useState({ key: null, cars: [] });
   const [search, setSearch] = useState('');
+  const key = `${startDate}|${endDate}`;
+  const cars = result.key === key ? result.cars : null;
 
   useEffect(() => {
+    let cancelled = false;
     // Cars with photos first — they make a better first impression.
-    fetchVehicles()
-      .then((list) => setCars([...list].sort((a, b) => (b.photos.length > 0) - (a.photos.length > 0)).slice(0, FEATURED_COUNT)))
-      .catch(() => setCars([]));
-  }, []);
-
-  if (cars !== null && cars.length === 0) return null;
+    fetchVehicles({ startDate, endDate })
+      .then((list) => {
+        if (cancelled) return;
+        const sorted = [...list].sort((a, b) => (b.photos.length > 0) - (a.photos.length > 0));
+        setResult({ key: `${startDate}|${endDate}`, cars: sorted.slice(0, FEATURED_COUNT) });
+      })
+      .catch(() => !cancelled && setResult({ key: `${startDate}|${endDate}`, cars: [] }));
+    return () => {
+      cancelled = true;
+    };
+  }, [startDate, endDate]);
 
   return (
-    <section className="bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+    <section id="cars" aria-live="polite" className="scroll-mt-20 bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -91,7 +105,10 @@ function FeaturedCars() {
             <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
               Self-Drive Cars in <span className="text-accent-600">Bengaluru</span>
             </h2>
-            <p className="mt-2 text-sm text-slate-500">Well-kept cars for city drives and weekend getaways — pick one and tap Book Now.</p>
+            <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+              <CalendarIcon className="h-4 w-4 text-accent-600" />
+              Available {formatDate(startDate)}, {formatTime(dates.startTime)} → {formatDate(endDate)}, {formatTime(dates.endTime)}
+            </p>
           </div>
           <form
             onSubmit={(e) => {
@@ -120,11 +137,20 @@ function FeaturedCars() {
 
         <OffersStrip className="mt-8" />
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {cars === null
-            ? [0, 1, 2].map((i) => <div key={i} className="h-96 animate-pulse rounded-2xl bg-white" />)
-            : cars.map((car) => <CarCard key={car._id} car={car} showRating={false} />)}
-        </div>
+        {cars !== null && cars.length === 0 ? (
+          <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+            <CarIcon className="mx-auto h-10 w-10 text-slate-300" />
+            <p className="mt-3 font-semibold text-slate-700">No cars are free for these dates</p>
+            <p className="mt-1 text-sm text-slate-500">Try other dates above, or message us and we&apos;ll find you a ride.</p>
+            <WhatsAppButton className="mt-5" message="Hi Roam Wheels! I'm looking for a car." />
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {cars === null
+              ? [0, 1, 2].map((i) => <div key={i} className="h-96 animate-pulse rounded-2xl bg-white" />)
+              : cars.map((car) => <CarCard key={car._id} car={car} showRating={false} />)}
+          </div>
+        )}
         <div className="mt-8 text-center">
           <Link
             to="/cars"
@@ -214,9 +240,9 @@ export default function HomePage() {
 
       <MetricsBand />
 
-      <WhyBookSection />
-
       <FeaturedCars />
+
+      <WhyBookSection />
 
       <ReviewsCarousel />
 

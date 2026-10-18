@@ -62,7 +62,7 @@ function ReviewCard({ review, hidden }) {
           </span>
           <span className="block truncate text-xs text-slate-500">
             {[review.subtitle, review.carName && `Drove the ${review.carName}`, review.ratedAt && reviewedWhen(review.ratedAt)].filter(Boolean).join(' · ') ||
-              'Roam Wheels customer'}
+              'Roam Wheels guest'}
           </span>
         </span>
       </figcaption>
@@ -108,7 +108,7 @@ export default function ReviewsCarousel({ className = '' }) {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">Reviews</p>
             <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
-              What Our <span className="text-accent-600">Customers Say</span>
+              What Our <span className="text-accent-600">Guests Say</span>
             </h2>
             <p className="mt-2 text-sm text-slate-500">The latest reviews from people who rented with us in Bengaluru.</p>
           </div>

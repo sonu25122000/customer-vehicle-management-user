@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Carousel from '../components/Carousel';
 import EnquiryBar from '../components/EnquiryBar';
+import CarPrice from '../components/CarPrice';
+import CallButton from '../components/CallButton';
 import { WhatsAppButton } from '../components/WhatsAppButton';
-import { ArrowLeftIcon, CarIcon, FuelIcon, GearIcon, StarIcon, CalendarIcon, PhoneIcon, QuoteIcon, MapPinIcon, ArrowRightIcon } from '../components/icons';
+import { ArrowLeftIcon, CarIcon, FuelIcon, GearIcon, StarIcon, CalendarIcon, QuoteIcon, MapPinIcon, ArrowRightIcon } from '../components/icons';
 import { fetchVehicle, fetchVehicleReviews } from '../api/portal';
-import { formatMoney, vehicleName } from '../utils/format';
-import { SUPPORT_PHONE, phoneLink, formatPhone } from '../utils/contact';
+import { vehicleName } from '../utils/format';
 import { mapsEmbedUrl, mapsLink, parkingArea } from '../utils/location';
 import { DEFAULT_TITLE } from '../utils/site';
 
@@ -81,7 +82,7 @@ function CarReviews({ carId, rating }) {
         <div className="mt-4 h-32 animate-pulse rounded-2xl bg-white" />
       ) : !total ? (
         <p className="mt-3 rounded-2xl bg-white px-5 py-6 text-sm text-slate-500 ring-1 ring-slate-200">
-          No reviews yet — customers can rate this car after their trip.
+          No reviews yet — guests can rate this car after their trip.
         </p>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
@@ -221,27 +222,15 @@ export default function CarDetailPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-5 flex items-end justify-between rounded-xl bg-primary px-4 py-3 text-white">
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-primary px-4 py-3 text-white">
               <span className="text-sm text-primary-100">Price</span>
-              {car.pricePerDay ? (
-                <span>
-                  <span className="text-2xl font-extrabold">{formatMoney(car.pricePerDay)}</span>
-                  <span className="text-sm text-primary-100"> / day</span>
-                </span>
-              ) : (
-                <span className="font-semibold">On request</span>
-              )}
+              <CarPrice car={car} dark />
             </div>
           </div>
 
           <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
             <h2 className="mb-4 text-base font-bold text-primary">Check availability</h2>
-            <EnquiryBar carName={name} compact />
-            {SUPPORT_PHONE && (
-              <a href={phoneLink()} className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-accent-600 hover:underline">
-                <PhoneIcon className="h-4 w-4" /> Or call {formatPhone()}
-              </a>
-            )}
+            <EnquiryBar carName={name} compact showCall />
           </div>
         </div>
       </div>
@@ -252,7 +241,10 @@ export default function CarDetailPage() {
 
       <div className="mt-10 rounded-2xl bg-white px-6 py-8 text-center ring-1 ring-slate-200">
         <p className="font-bold text-slate-900">Questions about the {name}?</p>
-        <WhatsAppButton className="mt-4" message={`Hi Roam Wheels! I have a question about the ${name}.`} />
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <WhatsAppButton message={`Hi Roam Wheels! I have a question about the ${name}.`} />
+          <CallButton label="Call Us" className="py-2.5" />
+        </div>
       </div>
     </div>
   );

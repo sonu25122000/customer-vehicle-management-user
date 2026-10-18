@@ -12,7 +12,7 @@ export const DEFAULT_TITLE = 'Car Rental in Whitefield, Bengaluru | RoamWheels';
 // The numbers band on the home page.
 export const SITE_METRICS = [
   { value: '2 Lakh+', label: 'Kilometres driven' },
-  { value: '200+', label: 'Customers served' },
+  { value: '200+', label: 'Guests served' },
   { value: '5.0', label: 'Average rating', star: true },
   { value: '0%', label: 'Cancellation rate' },
 ];

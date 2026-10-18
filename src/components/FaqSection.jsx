@@ -2,47 +2,76 @@ import { useEffect, useState } from 'react';
 import { ChevronDownIcon, WhatsAppIcon } from './icons';
 import { whatsappLink } from '../utils/contact';
 
-// Questions and answers shown on the home page. Edit freely — the answers describe how booking, document
-// verification and trip OTPs work on this site; anything that's a business policy (deposit, fuel,
-// distance) points the customer to the team rather than stating figures.
+// Questions and answers shown on the home page. Each answer is a list of paragraphs; **text** is shown in
+// bold. Edit freely.
 const FAQS = [
+  { q: 'Where do you rent cars?', a: ['We currently operate only in Bengaluru. Most cars are located in and around Whitefield.'] },
+  { q: 'Can I take the car outside Bengaluru?', a: ['Yes. You can take the car anywhere in India.'] },
+  { q: 'How do I book a car?', a: ['Select your dates, choose a car and tap **Book Now**. You can complete the booking through WhatsApp.'] },
+  { q: 'What documents do I need?', a: ['You need a valid driving licence, Aadhaar card and a selfie.'] },
+  { q: 'Is there a security deposit?', a: ['No. RoamWheels has **zero security deposit**.'] },
+  { q: 'Do I need to pay in advance?', a: ['Yes, a small advance may be required to confirm your booking.'] },
+  { q: 'Is there a kilometre limit?', a: ['No. There is **no kilometre limit**.'] },
+  { q: 'Is fuel included?', a: ['No. Fuel is paid by the customer.'] },
+  { q: 'Who pays toll and FASTag charges?', a: ['Toll and FASTag charges during the trip are paid by the customer.'] },
   {
-    q: 'Which cities do you rent cars in?',
-    a: 'Only Bengaluru (Bangalore). Our cars are parked in and around Whitefield — each car’s page shows its parking location on the map. Pick-up and drop-off are in Bengaluru — ask our team about trips outside the city.',
+    q: 'Are pets allowed?',
+    a: [
+      'Absolutely. **Pets are most welcome at RoamWheels.** 🐾',
+      'We know your pets are family, and no road trip feels complete without them. Bring your furry travel buddy along and enjoy the journey together.',
+      'We only ask that you keep the car reasonably clean and take care of the interiors.',
+    ],
   },
   {
-    q: 'How do I book a car?',
-    a: 'Pick your pick-up and return dates, choose a car, and tap “Book Now” — WhatsApp opens with your dates and the car filled into the message. Our team confirms availability and the price, and books the trip for you. You can also call us.',
+    q: 'Can I get a car for any use-case?',
+    a: [
+      'RoamWheels cars are for personal and leisure use only.',
+      'Commercial use, taxi services, ride sharing and heavy cargo transport are not allowed.',
+    ],
   },
   {
-    q: 'What documents do I need?',
-    a: 'A valid driving licence, your Aadhaar card and a selfie. Create an account, then upload them under Documents — our team reviews each one. Your profile has to be verified before you can start a trip.',
+    q: 'How is the price calculated?',
+    a: [
+      'Pricing depends on the car, booking duration, demand, weekends, holidays and peak seasons.',
+      'Longer bookings may get discounted pricing. A convenience fee, trip protection fee and optional services such as doorstep delivery may also be added.',
+    ],
   },
   {
-    q: 'How do I start and end my trip?',
-    a: 'Every trip has two one-time codes: a start OTP and an end OTP. When you pick up the car, our team shares the start OTP — enter it under My Trips to start the trip. When you return the car, they share the end OTP to finish it.',
+    q: 'What is the minimum booking duration?',
+    a: [
+      'The minimum booking duration is usually **4 hours**.',
+      'For some cars, weekends, holidays or peak seasons, the minimum duration may be higher.',
+    ],
   },
+  { q: 'Can I extend my booking?', a: ['Yes, subject to the car being available.'] },
+  { q: 'Can I change my booking dates?', a: ['Yes, subject to availability.'] },
   {
-    q: 'Do I need to pay anything in advance?',
-    a: 'An advance and a refundable security deposit may apply depending on the car and the trip length. Our team will tell you the exact amounts when they confirm your booking on WhatsApp.',
+    q: 'What happens if I return the car late?',
+    a: [
+      'We understand Bengaluru traffic, so you get **2 extra hours at no additional cost**.',
+      'After that, additional hours will be charged as per the applicable hourly rate.',
+    ],
   },
-  {
-    q: 'Can I change or extend my booking?',
-    a: 'Yes — message us on WhatsApp with your trip ID (you’ll find it under My Trips) and we’ll reschedule or extend it, subject to the car being free.',
-  },
-  {
-    q: 'What about fuel, distance limits and tolls?',
-    a: 'These depend on the car and the plan you choose, so please check with our team when you enquire. Any toll charges for your trip are shown on your trip.',
-  },
-  {
-    q: 'Do you have coupons or offers?',
-    a: 'Live offers appear on the home page and the Our Cars page. Mention the code when you book with us.',
-  },
-  {
-    q: 'How do I rate my trip?',
-    a: 'Once your trip is completed, open My Trips and tap “Rate your trip”. Your rating and review appear on the car’s page to help other customers.',
-  },
+  { q: 'What is the cancellation policy?', a: ['Cancellation charges may apply depending on when the booking is cancelled.'] },
+  { q: 'What if the car breaks down?', a: ['Contact us immediately and we’ll help you with the next steps.'] },
+  { q: 'What should I do in case of an accident?', a: ['Contact us immediately and avoid arranging repairs on your own.'] },
+  { q: 'Do you have coupons or offers?', a: ['Yes. Current offers and coupons are shown on our website.'] },
 ];
+
+// "Pets are **most welcome**" -> text with the starred parts in bold.
+function RichText({ text }) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 ? (
+      <strong key={i} className="font-bold text-slate-900">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  );
+}
+
+const plain = (paragraphs) => paragraphs.map((t) => t.replace(/\*\*/g, '')).join(' ');
 
 // FAQ accordion (one answer open at a time) with FAQPage structured data, so search engines can show
 // the questions directly in results.
@@ -55,7 +84,7 @@ export default function FaqSection() {
     script.text = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: FAQS.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+      mainEntity: FAQS.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: plain(f.a) } })),
     });
     document.head.appendChild(script);
     return () => script.remove();
@@ -69,7 +98,7 @@ export default function FaqSection() {
           <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
             Frequently Asked <span className="text-accent-600">Questions</span>
           </h2>
-          <p className="mt-3 text-sm text-slate-500">Everything about booking, documents and your trip. Can&apos;t find your answer?</p>
+          <p className="mt-3 text-sm text-slate-500">Everything about booking, pricing and your trip. Can&apos;t find your answer?</p>
           <a
             href={whatsappLink('Hi Roam Wheels! I have a question.')}
             target="_blank"
@@ -98,8 +127,12 @@ export default function FaqSection() {
                     <ChevronDownIcon className={`h-5 w-5 flex-shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180 text-accent-600' : ''}`} />
                   </button>
                 </h3>
-                <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} hidden={!isOpen} className="px-5 pb-5 text-sm leading-relaxed text-slate-600">
-                  {f.a}
+                <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} hidden={!isOpen} className="flex flex-col gap-2 px-5 pb-5 text-sm leading-relaxed text-slate-600">
+                  {f.a.map((t) => (
+                    <p key={t}>
+                      <RichText text={t} />
+                    </p>
+                  ))}
                 </div>
               </div>
             );

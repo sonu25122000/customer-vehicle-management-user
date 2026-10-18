@@ -94,7 +94,7 @@ export function fetchOffers() {
   return api.get('/portal/offers').then((res) => res.data.data);
 }
 
-// Public — the home page's "Let us know your email" form (shown to visitors who aren't logged in).
+// Public — the home page's "Let us know your email" form.
 export function subscribe(email) {
   return api.post('/portal/subscribe', { email }).then((res) => res.data);
 }

@@ -4,9 +4,12 @@ import { fetchVehicles } from '../api/portal';
 import CarCard from '../components/CarCard';
 import OffersStrip from '../components/OffersStrip';
 import EnquiryBar from '../components/EnquiryBar';
+import CallButton from '../components/CallButton';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CarIcon, SearchIcon, XIcon, FilterIcon, ListIcon, GridIcon } from '../components/icons';
 import { parkingArea } from '../utils/location';
+import { useTripDates } from '../utils/tripDates';
+import { formatDate } from '../utils/format';
 
 const SORTS = [
   { key: 'popular', label: 'Top rated' },
@@ -94,14 +97,17 @@ export default function CarsPage() {
   const [params, setParams] = useSearchParams();
   const query = params.get('q') || '';
   const [input, setInput] = useState(query);
-  // The last finished search: still loading while it's for a different query than the URL's.
-  const [result, setResult] = useState({ query: null, cars: [], failed: false });
+  // Only cars free for the pick-up / return in the dates band (shared with the home page).
+  const [{ startDate, endDate }] = useTripDates();
+  const key = `${query}|${startDate}|${endDate}`;
+  // The last finished search: still loading while it's for a different search or dates than now.
+  const [result, setResult] = useState({ key: null, cars: [], failed: false });
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('list');
   const [showFilters, setShowFilters] = useState(false);
-  const cars = result.query === query ? result.cars : null;
-  const failed = result.query === query && result.failed;
+  const cars = result.key === key ? result.cars : null;
+  const failed = result.key === key && result.failed;
 
   // Debounce typing into the URL.
   useEffect(() => {
@@ -112,13 +118,14 @@ export default function CarsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchVehicles({ search: query || undefined })
-      .then((list) => !cancelled && setResult({ query, cars: list, failed: false }))
-      .catch(() => !cancelled && setResult({ query, cars: [], failed: true }));
+    const forKey = `${query}|${startDate}|${endDate}`;
+    fetchVehicles({ search: query || undefined, startDate, endDate })
+      .then((list) => !cancelled && setResult({ key: forKey, cars: list, failed: false }))
+      .catch(() => !cancelled && setResult({ key: forKey, cars: [], failed: true }));
     return () => {
       cancelled = true;
     };
-  }, [query]);
+  }, [query, startDate, endDate]);
 
   const visible = useMemo(() => {
     if (!cars) return null;
@@ -132,7 +139,7 @@ export default function CarsPage() {
       {/* Dates band (Mychoize-style): pick dates once, every "Book Now" on this page uses them. */}
       <div className="border-b border-slate-200 bg-primary-100">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <EnquiryBar />
+          <EnquiryBar showCall />
         </div>
       </div>
 
@@ -180,6 +187,10 @@ export default function CarsPage() {
               <p className="mr-auto rounded-lg bg-slate-200/70 px-3.5 py-2 text-sm font-medium text-slate-700">
                 {visible ? `${visible.length} car${visible.length === 1 ? '' : 's'} available` : 'Loading cars…'}
                 {query && ` for "${query}"`}
+                <span className="text-slate-500">
+                  {' '}
+                  · {formatDate(startDate)} → {formatDate(endDate)}
+                </span>
               </p>
               <button
                 type="button"
@@ -231,10 +242,13 @@ export default function CarsPage() {
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
                 <CarIcon className="mx-auto h-10 w-10 text-slate-300" />
                 <p className="mt-3 font-semibold text-slate-700">
-                  {failed ? 'Could not load cars right now' : query || activeFilters ? 'No cars match your search' : 'No cars available right now'}
+                  {failed ? 'Could not load cars right now' : query || activeFilters ? 'No cars match your search' : 'No cars are free for these dates'}
                 </p>
                 <p className="mt-1 text-sm text-slate-500">Tell us what you need and we&apos;ll find you a ride.</p>
-                <WhatsAppButton className="mt-5" message={`Hi Roam Wheels! I'm looking for a car${query ? ` (${query})` : ''}.`} />
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                  <WhatsAppButton message={`Hi Roam Wheels! I'm looking for a car${query ? ` (${query})` : ''}.`} />
+                  <CallButton label="Call Us" className="py-2.5" />
+                </div>
               </div>
             ) : (
               <div className={`grid grid-cols-1 gap-5 ${view === 'grid' ? 'sm:grid-cols-2 xl:grid-cols-3' : ''}`}>
