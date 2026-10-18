@@ -36,13 +36,10 @@ function EnvelopeArt({ className }) {
 }
 
 // "Let us know your email" — collects emails for offers (stored by POST /api/portal/subscribe, which
-// also sends a welcome email). Shown to everyone; for a logged-in customer the email on their profile is
-// filled in.
+// also sends a welcome email). Shown to everyone, always starting empty — even for a logged-in guest.
 export default function NewsletterSection() {
-  const { customer, checking } = useAuth();
-  const [typed, setTyped] = useState(null);
-  const email = typed ?? customer?.email ?? '';
-  const setEmail = setTyped;
+  const { checking } = useAuth();
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
