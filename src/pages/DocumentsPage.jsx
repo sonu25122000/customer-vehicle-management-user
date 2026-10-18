@@ -80,7 +80,7 @@ export default function DocumentsPage() {
   useEffect(() => {
     if (!waiting) return undefined;
     const timer = setInterval(() => {
-      fetchProfile()
+      fetchProfile({ silent: true })
         .then(applyProfile)
         .catch(() => {});
     }, REFRESH_MS);

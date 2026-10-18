@@ -23,8 +23,9 @@ export function changePassword(currentPassword, newPassword) {
   return api.post('/portal/auth/change-password', { currentPassword, newPassword }).then((res) => res.data.customer);
 }
 
-export function fetchProfile() {
-  return api.get('/portal/profile').then((res) => res.data.data);
+// { silent: true } for background refreshes — they don't show the loader.
+export function fetchProfile({ silent = false } = {}) {
+  return api.get('/portal/profile', { silent }).then((res) => res.data.data);
 }
 
 // Name and email only — the mobile number is the login and can't be changed.

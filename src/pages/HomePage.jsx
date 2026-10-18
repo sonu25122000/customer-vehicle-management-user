@@ -31,16 +31,15 @@ import { fetchVehicles } from '../api/portal';
 import { SUPPORT_PHONE, SUPPORT_EMAIL, phoneLink, formatPhone } from '../utils/contact';
 import { SITE_METRICS } from '../utils/site';
 import { useTripDates } from '../utils/tripDates';
-import { formatDate, formatTime } from '../utils/format';
 import heroImage from '../assets/login-hero.png';
 
 const FEATURED_COUNT = 6;
 const METRIC_ICONS = [RouteIcon, UserIcon, StarIcon, CheckIcon];
 
-// Our numbers (utils/site.js), in a band overlapping the bottom of the hero.
+// Our numbers (utils/site.js), in a band right after the cars.
 function MetricsBand() {
   return (
-    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-slate-50 to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
+    <section aria-label="Roam Wheels in numbers" className="bg-slate-50 px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8">
       <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-primary shadow-2xl shadow-primary/25 lg:grid-cols-4">
         {SITE_METRICS.map((m, i) => {
           const Icon = METRIC_ICONS[i % METRIC_ICONS.length];
@@ -73,8 +72,7 @@ function MetricsBand() {
 // dates change. Anyone can browse, no login needed.
 function FeaturedCars() {
   const navigate = useNavigate();
-  const [dates] = useTripDates();
-  const { startDate, endDate } = dates;
+  const [{ startDate, endDate }] = useTripDates();
   // The last finished fetch, keyed by the dates it was for (still loading while they differ).
   const [result, setResult] = useState({ key: null, cars: [] });
   const [search, setSearch] = useState('');
@@ -97,7 +95,7 @@ function FeaturedCars() {
   }, [startDate, endDate]);
 
   return (
-    <section id="cars" aria-live="polite" className="scroll-mt-20 bg-slate-50 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+    <section id="cars" aria-live="polite" className="scroll-mt-20 bg-slate-50 px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -105,10 +103,7 @@ function FeaturedCars() {
             <h2 className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
               Self-Drive Cars in <span className="text-accent-600">Bengaluru</span>
             </h2>
-            <p className="mt-2 inline-flex flex-wrap items-center gap-x-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
-              <CalendarIcon className="h-4 w-4 text-accent-600" />
-              Available {formatDate(startDate)}, {formatTime(dates.startTime)} → {formatDate(endDate)}, {formatTime(dates.endTime)}
-            </p>
+            <p className="mt-2 text-sm text-slate-500">Well-kept cars for city drives and weekend getaways — pick one and tap Book Now.</p>
           </div>
           <form
             onSubmit={(e) => {
@@ -135,7 +130,7 @@ function FeaturedCars() {
           </form>
         </div>
 
-        <OffersStrip className="mt-8" />
+        <OffersStrip className="mt-6" />
 
         {cars !== null && cars.length === 0 ? (
           <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
@@ -167,7 +162,7 @@ function FeaturedCars() {
 const FEATURES = [
   { icon: CarIcon, title: 'Well-Maintained Cars', text: 'Clean, safe and road-ready vehicles.' },
   { icon: ShieldCheckIcon, title: 'Flexible Rental Plans', text: 'Daily, weekly or long-term — your choice.' },
-  { icon: MapPinIcon, title: 'Pickup in Whitefield', text: 'Easy pickup and drop in Whitefield, Bengaluru.' },
+  { icon: MapPinIcon, title: 'Pickup in Bengaluru', text: 'Easy pickup and drop in Bengaluru.' },
   { icon: HeadsetIcon, title: '24/7 Support', text: "We're always here when you need us." },
   { icon: CalendarIcon, title: 'Quick & Easy Booking', text: 'Pick your dates and car in just a few taps.' },
   { icon: TagIcon, title: 'Transparent Pricing', text: 'No hidden charges — what you see is what you pay.' },
@@ -184,10 +179,10 @@ function BengaluruSection() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent-600">Only in Bengaluru</p>
           <h2 id="bengaluru-heading" className="mt-2 text-2xl font-extrabold text-primary sm:text-3xl">
-            Self-Drive Car Rental in <span className="text-accent-600">Whitefield, Bengaluru</span>
+            Self-Drive Car Rental in <span className="text-accent-600">Bengaluru</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-            Roam Wheels is a Bengaluru car rental service based in Whitefield. We rent self-drive cars only in Bengaluru (Bangalore) —
+            Roam Wheels is a self-drive car rental service in Bengaluru. We rent self-drive cars only in Bengaluru (Bangalore) —
             for office commutes, airport runs, family outings and weekend road trips out of the city. Choose your car, pick your
             dates and drive it yourself, with no driver and no hidden surprises.
           </p>
@@ -217,7 +212,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-primary-50 from-45% via-primary-50/85 via-70% to-primary-50/10 md:from-35% md:via-60%" />
         <Navbar overlay />
 
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-24 text-center sm:px-6 sm:pb-28 sm:pt-32 lg:pb-32">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-6 pt-24 text-center sm:px-6 sm:pb-10 sm:pt-32 lg:pb-12">
           <p className="flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-accent-700 shadow-sm ring-1 ring-accent-100 backdrop-blur">
             <MapPinIcon className="h-3.5 w-3.5" /> Self-drive car rentals in Bengaluru
           </p>
@@ -238,9 +233,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <MetricsBand />
-
       <FeaturedCars />
+
+      <MetricsBand />
 
       <WhyBookSection />
 

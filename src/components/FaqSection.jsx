@@ -5,7 +5,7 @@ import { whatsappLink } from '../utils/contact';
 // Questions and answers shown on the home page. Each answer is a list of paragraphs; **text** is shown in
 // bold. Edit freely.
 const FAQS = [
-  { q: 'Where do you rent cars?', a: ['We currently operate only in Bengaluru. Most cars are located in and around Whitefield.'] },
+  { q: 'Where do you rent cars?', a: ['We currently operate only in Bengaluru.'] },
   { q: 'Can I take the car outside Bengaluru?', a: ['Yes. You can take the car anywhere in India.'] },
   { q: 'How do I book a car?', a: ['Select your dates, choose a car and tap **Book Now**. You can complete the booking through WhatsApp.'] },
   { q: 'What documents do I need?', a: ['You need a valid driving licence, Aadhaar card and a selfie.'] },

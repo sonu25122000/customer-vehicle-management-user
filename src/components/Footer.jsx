@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div>
           <img src={logo} alt="Roam Wheels" className="h-10 w-auto mix-blend-lighten" />
-          <p className="mt-3 max-w-xs text-sm text-slate-400">Self-drive car rentals in Whitefield, Bengaluru — reliable cars, flexible plans and a hassle-free experience. We operate only in Bengaluru.</p>
+          <p className="mt-3 max-w-xs text-sm text-slate-400">Self-drive car rentals in Bengaluru — reliable cars, flexible plans and a hassle-free experience. We operate only in Bengaluru.</p>
           <p className="mt-3 text-sm font-medium text-slate-300">
             Drive More <span className="mx-2 text-slate-600">|</span> Worry Less
           </p>
@@ -72,7 +72,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-7xl px-4 py-4 pb-24 text-center text-xs text-slate-500 sm:px-6 sm:pb-4 lg:px-8">
-          © {new Date().getFullYear()} Roam Wheels · Car rental in Whitefield, Bengaluru. All rights reserved.
+          © {new Date().getFullYear()} Roam Wheels · Car rental in Bengaluru. All rights reserved.
         </p>
       </div>
     </footer>

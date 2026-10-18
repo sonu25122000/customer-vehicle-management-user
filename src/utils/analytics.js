@@ -1,40 +1,24 @@
-// Google Analytics 4 (gtag.js). Loaded only when VITE_GA_MEASUREMENT_ID is set (e.g. G-XXXXXXXXXX), so
-// local development and preview builds don't send data. This is a single-page app, so page views are
-// sent on every route change (usePageViews) instead of relying on full page loads.
-import { useEffect } from 'react';
+// Google Analytics 4. The Google tag itself (gtag.js, G-XJFYTYEP97) is in index.html, right after
+// <head>, as Google asks — it records the first page view when the site loads. This is a single-page
+// app, so moving between pages doesn't reload it: usePageViews sends a page view on every later route
+// change, and trackEvent sends custom events (e.g. WhatsApp enquiries).
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || '';
-
-let initialized = false;
-
-export function initAnalytics() {
-  if (!MEASUREMENT_ID || initialized || typeof window === 'undefined') return;
-  initialized = true;
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(MEASUREMENT_ID)}`;
-  document.head.appendChild(script);
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer.push(arguments);
-  };
-  window.gtag('js', new Date());
-  // Page views are sent by usePageViews.
-  window.gtag('config', MEASUREMENT_ID, { send_page_view: false });
-}
-
 export function trackEvent(name, params = {}) {
-  if (MEASUREMENT_ID && window.gtag) window.gtag('event', name, params);
+  if (typeof window !== 'undefined' && window.gtag) window.gtag('event', name, params);
 }
 
 export function usePageViews() {
   const location = useLocation();
+  const first = useRef(true);
   useEffect(() => {
-    if (!MEASUREMENT_ID || !window.gtag) return;
-    window.gtag('event', 'page_view', {
+    // The tag's own config call already counted the page the visitor landed on.
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    trackEvent('page_view', {
       page_path: location.pathname + location.search,
       page_location: window.location.href,
       page_title: document.title,
