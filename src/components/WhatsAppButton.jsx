@@ -1,8 +1,8 @@
 import { whatsappLink } from '../utils/contact';
 import { WhatsAppIcon, ArrowRightIcon } from './icons';
 
-// Primary "Chat on WhatsApp" call to action (brand blue, like every other primary button on the site).
-export function WhatsAppButton({ message, label = 'Chat on WhatsApp', className = '' }) {
+// Primary "WhatsApp Us" call to action (brand blue, like every other primary button on the site).
+export function WhatsAppButton({ message, label = 'WhatsApp Us', className = '' }) {
   return (
     <a
       href={whatsappLink(message)}

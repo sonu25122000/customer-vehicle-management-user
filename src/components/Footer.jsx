@@ -52,7 +52,7 @@ export default function Footer() {
             )}
             <li>
               <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-                <WhatsAppIcon className="h-4 w-4" /> Chat on WhatsApp
+                <WhatsAppIcon className="h-4 w-4" /> WhatsApp Us
               </a>
             </li>
             {SUPPORT_EMAIL && (

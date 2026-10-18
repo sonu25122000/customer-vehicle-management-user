@@ -153,8 +153,9 @@ export default function Navbar({ overlay = false }) {
           )}
           {customer ? (
             <button
+              type="button"
               onClick={handleLogout}
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 ring-1 ring-red-100"
+              className="mx-auto mt-1 inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold text-slate-500 underline-offset-4 transition-colors hover:text-red-600 hover:underline"
             >
               <LogoutIcon className="h-4 w-4" /> Logout
             </button>
@@ -213,14 +214,9 @@ export default function Navbar({ overlay = false }) {
           </Link>
         )}
 
-        {customer ? (
-          <button
-            onClick={handleLogout}
-            className="hidden flex-shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-red-200 hover:text-red-600 lg:flex"
-          >
-            <LogoutIcon className="h-4 w-4" /> Logout
-          </button>
-        ) : (
+        {/* No logout control in the header on purpose — signing out lives as a small text link on the
+            Profile page (and at the bottom of the phone menu), so it isn't one tap away. */}
+        {!customer && (
           <Link
             to="/login"
             onClick={close}

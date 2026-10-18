@@ -35,6 +35,10 @@ function initials(name = '') {
     .join('');
 }
 
+// Logout is a text link, not a button — clearly readable, but not prominent.
+const LOGOUT_LINK_CLASS =
+  'cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold text-slate-600 underline-offset-4 transition-colors hover:text-red-600 hover:underline';
+
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -278,7 +282,13 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <h1 className="text-xl font-extrabold text-primary sm:text-2xl">My Profile</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-xl font-extrabold text-primary sm:text-2xl">My Profile</h1>
+        {/* Desktop only — on phones/tablets Logout lives in the hamburger menu (Navbar). */}
+        <button type="button" onClick={handleLogout} className={`${LOGOUT_LINK_CLASS} hidden lg:inline-flex`}>
+          <LogoutIcon className="h-4 w-4" /> Logout
+        </button>
+      </div>
 
       {/* Phone/tablet: one column. Desktop: summary card (sticky) on the left, the two sections on the right. */}
       <div className="mt-4 grid grid-cols-1 gap-8 lg:mt-6 lg:grid-cols-[320px_1fr] lg:items-start xl:grid-cols-[360px_1fr]">
@@ -336,13 +346,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          <button
-            onClick={handleLogout}
-            className="hidden lg:flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-red-600 shadow-sm transition-colors hover:bg-red-50"
-          >
-            <LogoutIcon className="h-4.5 w-4.5" /> Logout
-          </button>
         </aside>
 
         <div className="flex flex-col gap-8">
@@ -431,13 +434,6 @@ export default function ProfilePage() {
           </Section>
         </div>
       </div>
-
-      <button
-        onClick={handleLogout}
-        className="mt-8 flex lg:hidden w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-red-600 shadow-sm transition-colors hover:bg-red-50"
-      >
-        <LogoutIcon className="h-4.5 w-4.5" /> Logout
-      </button>
 
       {editing && (
         <Modal title="Edit personal details" onClose={() => setEditing(false)}>

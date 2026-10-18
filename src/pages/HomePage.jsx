@@ -8,6 +8,8 @@ import EnquiryBar from '../components/EnquiryBar';
 import ReviewsCarousel from '../components/ReviewsCarousel';
 import InstagramSection from '../components/InstagramSection';
 import FaqSection from '../components/FaqSection';
+import NewsletterSection from '../components/NewsletterSection';
+import WhyBookSection from '../components/WhyBookSection';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import {
   CarIcon,
@@ -22,6 +24,8 @@ import {
   RouteIcon,
   UserIcon,
   CheckIcon,
+  CalendarIcon,
+  TagIcon,
 } from '../components/icons';
 import { fetchVehicles } from '../api/portal';
 import { SUPPORT_PHONE, SUPPORT_EMAIL, phoneLink, formatPhone } from '../utils/contact';
@@ -34,7 +38,7 @@ const METRIC_ICONS = [RouteIcon, UserIcon, StarIcon, CheckIcon];
 // Our numbers (utils/site.js), in a band overlapping the bottom of the hero.
 function MetricsBand() {
   return (
-    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-slate-50 to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
+    <section aria-label="Roam Wheels in numbers" className="relative z-10 -mt-12 bg-gradient-to-b from-transparent from-50% to-white to-50% px-4 sm:-mt-16 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-3xl bg-primary shadow-2xl shadow-primary/25 lg:grid-cols-4">
         {SITE_METRICS.map((m, i) => {
           const Icon = METRIC_ICONS[i % METRIC_ICONS.length];
@@ -139,6 +143,8 @@ const FEATURES = [
   { icon: ShieldCheckIcon, title: 'Flexible Rental Plans', text: 'Daily, weekly or long-term — your choice.' },
   { icon: MapPinIcon, title: 'Pickup in Whitefield', text: 'Easy pickup and drop in Whitefield, Bengaluru.' },
   { icon: HeadsetIcon, title: '24/7 Support', text: "We're always here when you need us." },
+  { icon: CalendarIcon, title: 'Quick & Easy Booking', text: 'Pick your dates and car in just a few taps.' },
+  { icon: TagIcon, title: 'Transparent Pricing', text: 'No hidden charges — what you see is what you pay.' },
 ];
 
 // Weekend getaways mentioned in the "car rental in Bengaluru" section.
@@ -208,6 +214,8 @@ export default function HomePage() {
 
       <MetricsBand />
 
+      <WhyBookSection />
+
       <FeaturedCars />
 
       <ReviewsCarousel />
@@ -220,7 +228,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-2 text-sm text-slate-500">We make car rentals in Bengaluru simple, safe and convenient.</p>
 
-          <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:mt-12 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-10">
+          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-x-4 gap-y-10 sm:mt-12 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-10">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex flex-col items-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-50 text-accent-600 ring-8 ring-accent-50/60 sm:h-16 sm:w-16">
@@ -237,6 +245,8 @@ export default function HomePage() {
       <BengaluruSection />
 
       <InstagramSection />
+
+      <NewsletterSection />
 
       <FaqSection />
 

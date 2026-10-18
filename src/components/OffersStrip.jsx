@@ -44,6 +44,10 @@ export default function OffersStrip({ className = '' }) {
               <p className="mt-2 inline-block rounded-md bg-white px-2.5 py-1 font-mono text-sm font-bold tracking-wider text-slate-800 ring-1 ring-slate-200">
                 {o.code}
               </p>
+              {o.note && <p className="mt-2 text-xs font-medium text-slate-700">{o.note}</p>}
+              {o.minBookingAmount ? (
+                <p className="mt-1 text-xs font-semibold text-slate-600">On a minimum booking of {formatMoney(o.minBookingAmount)}</p>
+              ) : null}
               <p className="mt-2 text-xs text-slate-500">
                 Valid till {formatExpiry(o.expiresAt)}
                 {o.forYou && <span className="ml-1.5 font-semibold text-accent-700">· Just for you</span>}
