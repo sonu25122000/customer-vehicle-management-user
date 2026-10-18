@@ -4,7 +4,6 @@ import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageLayout from './components/PageLayout';
 import { WhatsAppFab } from './components/WhatsAppButton';
-import { ApiLoader, FullPageLoader } from './components/Loader';
 import HomePage from './pages/HomePage';
 import { LoginPage, SignupPage, ChangePasswordPage } from './pages/AuthPages';
 import ProfilePage from './pages/ProfilePage';
@@ -29,12 +28,11 @@ export default function App() {
   useScrollToTop();
 
   if (checking) {
-    return <FullPageLoader />;
+    return <div className="flex h-dvh items-center justify-center text-sm text-slate-500">Loading...</div>;
   }
 
   return (
     <>
-      <ApiLoader />
       <Toaster
         position="top-right"
         toastOptions={{

@@ -7,7 +7,7 @@ import CarPrice from './CarPrice';
 import CallButton from './CallButton';
 import { vehicleName } from '../utils/format';
 import { parkingArea } from '../utils/location';
-import { CarIcon, FuelIcon, GearIcon, StarIcon, WhatsAppIcon, ArrowRightIcon, MapPinIcon } from './icons';
+import { CarIcon, FuelIcon, GearIcon, StarIcon, WhatsAppIcon, ArrowRightIcon, MapPinIcon, SparkIcon } from './icons';
 
 function Spec({ icon: Icon, children }) {
   return (
@@ -17,12 +17,25 @@ function Spec({ icon: Icon, children }) {
   );
 }
 
+// Guests' rating of the car after their trips, or — before anyone has rated it — a "New" badge.
 function Rating({ rating }) {
-  if (!rating) return <span className="text-xs font-semibold text-emerald-700">New</span>;
+  if (!rating) {
+    return (
+      <span
+        className="inline-flex flex-shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1 text-[0.7rem] font-bold text-emerald-700 ring-1 ring-emerald-100"
+        title="No ratings yet — be the first to rate it after your trip"
+      >
+        <SparkIcon className="h-3.5 w-3.5" /> New
+      </span>
+    );
+  }
   return (
-    <span className="flex items-center gap-1 text-xs font-bold text-slate-800">
+    <span
+      className="inline-flex flex-shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-accent-50 px-2 py-1 text-xs font-bold text-slate-800 ring-1 ring-accent-100"
+      title={`Rated ${rating.avg.toFixed(1)} out of 5 by ${rating.count} guest${rating.count === 1 ? '' : 's'}`}
+    >
       <StarIcon className="h-3.5 w-3.5 text-accent" /> {rating.avg.toFixed(1)}
-      <span className="font-normal text-slate-400">({rating.count})</span>
+      <span className="font-medium text-slate-500">({rating.count})</span>
     </span>
   );
 }
@@ -31,9 +44,8 @@ function Rating({ rating }) {
 // customers' rating, with a WhatsApp enquiry (dates picked in a pop-up) instead of online booking, and a
 // Call button beside it.
 // layout="list" is the wide card on the Cars page (photo on the left from tablet up); "grid" stacks.
-// showRating={false} leaves the rating out (the home page doesn't show ratings).
 // The whole card opens the car's page — except its buttons and links (Book Now, Call, photo arrows).
-export default function CarCard({ car, layout = 'grid', showRating = true }) {
+export default function CarCard({ car, layout = 'grid' }) {
   const navigate = useNavigate();
   const [enquiring, setEnquiring] = useState(false);
   const name = `${vehicleName(car)} ${car.year || ''}`.trim();
@@ -62,7 +74,7 @@ export default function CarCard({ car, layout = 'grid', showRating = true }) {
               </Link>
               <p className="text-xs text-slate-500">{car.year} model</p>
             </div>
-            {showRating && <Rating rating={car.rating} />}
+            <Rating rating={car.rating} />
           </div>
 
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">

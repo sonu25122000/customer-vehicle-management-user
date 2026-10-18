@@ -143,7 +143,7 @@ function FeaturedCars() {
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {cars === null
               ? [0, 1, 2].map((i) => <div key={i} className="h-96 animate-pulse rounded-2xl bg-white" />)
-              : cars.map((car) => <CarCard key={car._id} car={car} showRating={false} />)}
+              : cars.map((car) => <CarCard key={car._id} car={car} />)}
           </div>
         )}
         <div className="mt-8 text-center">
