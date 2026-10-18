@@ -1,10 +1,12 @@
-// Business contact details, from .env (see .env.example).
-export const WHATSAPP_NUMBER = (import.meta.env.VITE_WHATSAPP_NUMBER || '').replace(/\D/g, '');
+// Business contact details. The phone number is set here, in one place, for every Call and WhatsApp
+// button on the site — change it here and push.
+const BUSINESS_PHONE = '9241691016';
 
-// The number to call. Defaults to the WhatsApp number (without the 91 country code) when no separate
-// support number is set.
-export const SUPPORT_PHONE =
-  import.meta.env.VITE_SUPPORT_PHONE || (WHATSAPP_NUMBER.length === 12 && WHATSAPP_NUMBER.startsWith('91') ? WHATSAPP_NUMBER.slice(2) : WHATSAPP_NUMBER);
+// WhatsApp: digits with the 91 country code, no +.
+export const WHATSAPP_NUMBER = `91${BUSINESS_PHONE}`;
+
+// The number to call.
+export const SUPPORT_PHONE = BUSINESS_PHONE;
 export const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || '';
 
 export const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || 'https://www.instagram.com/roam_wheels';
@@ -23,7 +25,7 @@ export function phoneLink(phone = SUPPORT_PHONE) {
   return `tel:${digits.length === 10 ? `+91${digits}` : `+${digits}`}`;
 }
 
-// "9955074864" -> "+91 99550 74864"
+// "9241691016" -> "+91 92416 91016"
 export function formatPhone(phone = SUPPORT_PHONE) {
   const digits = String(phone || '').replace(/\D/g, '');
   const local = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
