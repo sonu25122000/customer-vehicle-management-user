@@ -3,7 +3,8 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { errorMessage } from '../api/client';
-import { checkResetToken, forgotPassword } from '../api/portal';
+import { checkResetToken, forgotPassword, sendSignupEmailCode } from '../api/portal';
+import EmailCodeStep from '../components/EmailCodeStep';
 import { whatsappLink } from '../utils/contact';
 import { UserIcon, LockIcon, EyeIcon, PhoneIcon, MailIcon, ShieldCheckIcon, ArrowLeftIcon, CarIcon } from '../components/icons';
 import heroImage from '../assets/login-hero.png';
@@ -88,7 +89,7 @@ function AuthShell({ title, subtitle, children, footer }) {
             <h1 className="text-center text-xl font-bold text-gray-900">{title}</h1>
             <p className="mb-6 mt-1 text-center text-xs text-gray-500">{subtitle}</p>
             {children}
-            <p className="mt-5 text-center text-sm text-gray-600">{footer}</p>
+            {footer && <p className="mt-5 text-center text-sm text-gray-600">{footer}</p>}
           </div>
 
           <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-primary-100">
@@ -278,12 +279,17 @@ export function SignupPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', mobile: '', email: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
+  // Step 2: the code emailed to verify the address ({ expiresAt, resendAt } once sent).
+  const [sent, setSent] = useState(null);
+  const [code, setCode] = useState('');
   const next = safeNext(params.get('next'));
 
   if (customer) return <Navigate to={next} replace />;
 
   const set = (field) => (value) => setForm((f) => ({ ...f, [field]: value }));
+  const payload = () => ({ name: form.name.trim(), mobile: form.mobile, email: form.email.trim(), password: form.password });
 
+  // Step 1: check the form, then email a code to the address.
   async function handleSubmit(e) {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
@@ -296,14 +302,59 @@ export function SignupPage() {
     }
     setLoading(true);
     try {
-      await signup({ name: form.name.trim(), mobile: form.mobile, email: form.email.trim(), password: form.password });
-      toast.success('Welcome to Roam Wheels!');
-      navigate(next, { replace: true });
+      setSent(await sendSignupEmailCode(payload()));
+      setCode('');
     } catch (err) {
-      toast.error(errorMessage(err, 'Signup failed'));
+      toast.error(errorMessage(err, 'Could not send the code'));
     } finally {
       setLoading(false);
     }
+  }
+
+  async function resendCode() {
+    try {
+      setSent(await sendSignupEmailCode(payload()));
+      setCode('');
+      toast.success('A new code is on its way');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not send the code'));
+    }
+  }
+
+  // Step 2: the account is created only with the right code.
+  async function createAccount(emailCode) {
+    setLoading(true);
+    try {
+      await signup({ ...payload(), emailCode });
+      toast.success('Email verified. Welcome to Roam Wheels!');
+      navigate(next, { replace: true });
+    } catch (err) {
+      toast.error(errorMessage(err, 'Signup failed'));
+      const errCode = err?.response?.data?.code;
+      if (errCode === 'EMAIL_OTP_INVALID' || errCode === 'EMAIL_OTP_LOCKED' || errCode === 'EMAIL_OTP_EXPIRED') setCode('');
+      // The form itself was refused (e.g. the number or email got taken meanwhile): back to it.
+      if (err?.response?.status === 409) setSent(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <AuthShell title="Verify Your Email" subtitle="One last step to create your account" footer={null}>
+        <EmailCodeStep
+          email={form.email.trim()}
+          sent={sent}
+          code={code}
+          onCodeChange={setCode}
+          busy={loading}
+          submitLabel="Verify & Create Account"
+          onSubmit={createAccount}
+          onResend={resendCode}
+          onBack={() => setSent(null)}
+        />
+      </AuthShell>
+    );
   }
 
   return (
@@ -346,7 +397,7 @@ export function SignupPage() {
             className={inputClass}
           />
         </Field>
-        <Field label="Email" icon={MailIcon}>
+        <Field label="Email" icon={MailIcon} hint="We'll email you a code to verify it">
           <input
             type="email"
             value={form.email}
@@ -364,7 +415,7 @@ export function SignupPage() {
         <Field label="Confirm Password" icon={LockIcon}>
           <PasswordInput value={form.confirm} onChange={set('confirm')} autoComplete="new-password" placeholder="Re-enter your password" />
         </Field>
-        <SubmitButton loading={loading}>{loading ? 'Creating account...' : 'Sign Up'}</SubmitButton>
+        <SubmitButton loading={loading}>{loading ? 'Sending code...' : 'Continue'}</SubmitButton>
       </form>
     </AuthShell>
   );

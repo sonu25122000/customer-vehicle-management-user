@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { fetchProfile, fetchTrip, submitTripOtp, vehiclePhotoUrl } from '../api/portal';
@@ -7,75 +7,9 @@ import { verificationMessage, verificationSummary } from '../utils/documents';
 import { formatDate, formatTime, vehicleName } from '../utils/format';
 import { ArrowLeftIcon, CarIcon, KeyIcon, FlagIcon, WhatsAppIcon } from '../components/icons';
 import { whatsappLink } from '../utils/contact';
+import OtpInput from '../components/OtpInput';
 
 const OTP_LENGTH = 6;
-
-// Six single-digit boxes that behave like one field: typing moves forward, backspace moves back, and
-// pasting a whole code fills every box.
-function OtpInput({ value, onChange, disabled, autoFocus }) {
-  const refs = useRef([]);
-  const digits = Array.from({ length: OTP_LENGTH }, (_, i) => value[i] || '');
-
-  function setAt(index, digit) {
-    const next = digits.slice();
-    next[index] = digit;
-    onChange(next.join('').slice(0, OTP_LENGTH));
-  }
-
-  function handleChange(index, raw) {
-    const clean = raw.replace(/\D/g, '');
-    if (!clean) {
-      setAt(index, '');
-      return;
-    }
-    if (clean.length > 1) {
-      // Pasted or autofilled several digits.
-      const merged = (digits.slice(0, index).join('') + clean).slice(0, OTP_LENGTH);
-      onChange(merged);
-      refs.current[Math.min(merged.length, OTP_LENGTH - 1)]?.focus();
-      return;
-    }
-    setAt(index, clean);
-    if (index < OTP_LENGTH - 1) refs.current[index + 1]?.focus();
-  }
-
-  function handleKeyDown(index, e) {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      setAt(index - 1, '');
-      refs.current[index - 1]?.focus();
-      e.preventDefault();
-    } else if (e.key === 'ArrowLeft' && index > 0) {
-      refs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
-      refs.current[index + 1]?.focus();
-    }
-  }
-
-  return (
-    <div className="flex justify-center gap-2 sm:gap-3">
-      {digits.map((d, i) => (
-        <input
-          key={i}
-          ref={(el) => {
-            refs.current[i] = el;
-          }}
-          type="text"
-          inputMode="numeric"
-          autoComplete={i === 0 ? 'one-time-code' : 'off'}
-          maxLength={OTP_LENGTH}
-          value={d}
-          disabled={disabled}
-          autoFocus={autoFocus && i === 0}
-          aria-label={`Digit ${i + 1}`}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          onFocus={(e) => e.target.select()}
-          className="h-13 w-11 rounded-xl border border-slate-300 bg-white text-center font-mono text-2xl font-bold text-slate-900 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-100 disabled:bg-slate-100 sm:h-14 sm:w-12"
-        />
-      ))}
-    </div>
-  );
-}
 
 // /trips/:id/start and /trips/:id/end — the customer enters the OTP our team shares at pickup / return.
 // On success it goes straight back to My Trips; after ending a trip, My Trips opens the rating pop-up.

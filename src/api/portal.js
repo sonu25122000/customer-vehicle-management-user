@@ -2,6 +2,12 @@ import api from './client';
 
 // Customer-site endpoints — see backend routes/portalRoutes.js.
 
+// Signup step 1: checks the form and emails a 6-digit code — resolves to { expiresAt, resendAt }.
+export function sendSignupEmailCode(payload) {
+  return api.post('/portal/auth/signup/email-code', payload).then((res) => res.data);
+}
+
+// Signup step 2: payload is the form plus emailCode (the code from step 1).
 export function signup(payload) {
   return api.post('/portal/auth/signup', payload).then((res) => res.data.customer);
 }
@@ -42,7 +48,13 @@ export function fetchProfile() {
   return api.get('/portal/profile').then((res) => res.data.data);
 }
 
-// Name and email only — the mobile number is the login and can't be changed.
+// Changing the email, step 1: emails a code to the new address — resolves to { expiresAt, resendAt }.
+export function sendProfileEmailCode(email) {
+  return api.post('/portal/profile/email-code', { email }).then((res) => res.data);
+}
+
+// Name and email only — the mobile number is the login and can't be changed. A new email needs
+// emailCode (from sendProfileEmailCode).
 export function updateProfile(payload) {
   return api.patch('/portal/profile', payload).then((res) => res.data.data);
 }

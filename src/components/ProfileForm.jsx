@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { updateProfile } from '../api/portal';
+import { sendProfileEmailCode, updateProfile } from '../api/portal';
+import EmailCodeStep from './EmailCodeStep';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { LockIcon } from './icons';
@@ -11,7 +12,7 @@ export const labelClass = 'text-xs font-semibold text-slate-600';
 
 // Name / email editor for the profile page. The mobile number is shown but can't be edited — it's the
 // customer's login. Saving goes through PATCH /portal/profile, which keeps every change in the
-// customer's edit history.
+// customer's edit history. A new email is only saved after the code emailed to it is entered.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 'Save Changes', showEmail = true }) {
@@ -21,8 +22,35 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
     email: initial?.email || '',
   });
   const [saving, setSaving] = useState(false);
+  // Verifying a new email: { expiresAt, resendAt } once the code is sent.
+  const [sent, setSent] = useState(null);
+  const [code, setCode] = useState('');
 
-  const unchanged = form.name.trim() === (initial?.name || '') && form.email.trim() === (initial?.email || '');
+  const emailChanged = showEmail && form.email.trim().toLowerCase() !== (initial?.email || '').toLowerCase();
+  const unchanged = form.name.trim() === (initial?.name || '') && !emailChanged;
+
+  async function save(extra = {}) {
+    setSaving(true);
+    try {
+      const saved = await updateProfile({ name: form.name.trim(), email: form.email.trim(), ...extra });
+      setCustomer((c) => ({ ...c, ...saved }));
+      toast.success(extra.emailCode ? 'Email verified and profile updated' : 'Profile updated');
+      onSaved?.(saved, true);
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not update your profile'));
+      const errCode = err?.response?.data?.code;
+      if (errCode === 'EMAIL_OTP_INVALID' || errCode === 'EMAIL_OTP_LOCKED' || errCode === 'EMAIL_OTP_EXPIRED') setCode('');
+      if (errCode === 'EMAIL_IN_USE') setSent(null);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendCode() {
+    const result = await sendProfileEmailCode(form.email.trim());
+    setSent(result);
+    setCode('');
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,17 +62,39 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
       onSaved?.(initial, false);
       return;
     }
+    if (!emailChanged) {
+      await save();
+      return;
+    }
+    // A new email: send a code to it first; the change is saved once the code is entered.
     setSaving(true);
     try {
-      const saved = await updateProfile({ name: form.name.trim(), email: form.email.trim() });
-      setCustomer((c) => ({ ...c, ...saved }));
-      toast.success('Profile updated');
-      onSaved?.(saved, true);
+      await sendCode();
     } catch (err) {
-      toast.error(errorMessage(err, 'Could not update your profile'));
+      toast.error(errorMessage(err, 'Could not send the code'));
     } finally {
       setSaving(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <EmailCodeStep
+        email={form.email.trim()}
+        sent={sent}
+        code={code}
+        onCodeChange={setCode}
+        busy={saving}
+        submitLabel="Verify & Save"
+        onSubmit={(emailCode) => save({ emailCode })}
+        onResend={() =>
+          sendCode()
+            .then(() => toast.success('A new code is on its way'))
+            .catch((err) => toast.error(errorMessage(err, 'Could not send the code')))
+        }
+        onBack={() => setSent(null)}
+      />
+    );
   }
 
   return (
@@ -87,6 +137,7 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
             autoComplete="email"
             placeholder="you@example.com"
           />
+          {emailChanged && <span className="text-xs text-slate-500">We&apos;ll email a code to the new address to verify it.</span>}
         </label>
       )}
       <div className="flex justify-end gap-3 pt-1">
