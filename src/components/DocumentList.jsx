@@ -1,17 +1,28 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Modal from './Modal';
+import SelfieCamera from './SelfieCamera';
 import StatusChip from './StatusChip';
 import { uploadDocuments } from '../api/portal';
 import { errorMessage } from '../api/client';
-import { compressImage } from '../utils/compressImage';
+import { compressImage, uploadSizeError } from '../utils/compressImage';
 import { DOCUMENTS, documentFileUrl, documentStatus, isPdf } from '../utils/documents';
 import { formatDate } from '../utils/format';
 import { IdCardIcon, LicenseIcon, CameraIcon, EyeIcon, UploadIcon } from './icons';
 
 const DOCUMENT_ICONS = { aadhaar: IdCardIcon, aadhaarBack: IdCardIcon, drivingLicence: LicenseIcon, selfie: CameraIcon };
-const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
+function Spinner() {
+  return <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
+}
+
+// Upload / Replace / Take Selfie button look: orange when something is needed, grey otherwise.
+function actionClass(busy, needsUpload) {
+  return `inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-bold transition-colors ${busy ? 'cursor-wait opacity-70' : 'cursor-pointer'} ${
+    needsUpload ? 'bg-accent text-primary shadow-md shadow-accent/20 hover:bg-accent-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+  }`;
+}
 
 // The uploaded file, full size — an image inline, a PDF in a new tab.
 function DocumentViewer({ label, doc, onClose }) {
@@ -44,6 +55,7 @@ function DocumentViewer({ label, doc, onClose }) {
 export default function DocumentList({ profile, onUploaded }) {
   const [uploading, setUploading] = useState(null); // the type being uploaded
   const [viewing, setViewing] = useState(null); // { label, doc }
+  const [camera, setCamera] = useState(null); // the document taken with the camera (the selfie)
   const byType = Object.fromEntries((profile.documents || []).map((d) => [d.type, d]));
 
   async function handleFile(d, file) {
@@ -53,9 +65,11 @@ export default function DocumentList({ profile, onUploaded }) {
     }
     setUploading(d.type);
     try {
+      // Photos are compressed to under 1.5 MB; PDFs go as they are (max 2 MB).
       const small = await compressImage(file);
-      if (small.size > MAX_BYTES) {
-        toast.error('This file is too large — the maximum is 2 MB');
+      const sizeError = uploadSizeError(small);
+      if (sizeError) {
+        toast.error(sizeError);
         return;
       }
       const result = await uploadDocuments({ [d.type]: small });
@@ -110,34 +124,34 @@ export default function DocumentList({ profile, onUploaded }) {
                     <EyeIcon className="h-4 w-4" /> View
                   </button>
                 )}
-                <label
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-bold transition-colors ${
-                    busy ? 'cursor-wait opacity-70' : 'cursor-pointer'
-                  } ${
-                    needsUpload
-                      ? 'bg-accent text-primary shadow-md shadow-accent/20 hover:bg-accent-600'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {busy ? (
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  ) : (
-                    <UploadIcon className="h-4 w-4" />
-                  )}
-                  {busy ? 'Uploading…' : !doc ? 'Upload' : doc.status === 'Rejected' ? 'Upload again' : 'Replace'}
-                  <input
-                    type="file"
-                    accept={d.accept}
-                    capture={d.capture}
-                    className="sr-only"
+                {d.camera ? (
+                  // The selfie: taken live with the camera only — no file or gallery picker.
+                  <button
+                    type="button"
+                    onClick={() => setCamera(d)}
                     disabled={Boolean(uploading)}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      e.target.value = '';
-                      if (file) handleFile(d, file);
-                    }}
-                  />
-                </label>
+                    className={`${actionClass(busy, needsUpload)} disabled:cursor-wait`}
+                  >
+                    {busy ? <Spinner /> : <CameraIcon className="h-4 w-4" />}
+                    {busy ? 'Uploading…' : !doc ? 'Take Selfie' : doc.status === 'Rejected' ? 'Retake Selfie' : 'Retake'}
+                  </button>
+                ) : (
+                  <label className={actionClass(busy, needsUpload)}>
+                    {busy ? <Spinner /> : <UploadIcon className="h-4 w-4" />}
+                    {busy ? 'Uploading…' : !doc ? 'Upload' : doc.status === 'Rejected' ? 'Upload again' : 'Replace'}
+                    <input
+                      type="file"
+                      accept={d.accept}
+                      className="sr-only"
+                      disabled={Boolean(uploading)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = '';
+                        if (file) handleFile(d, file);
+                      }}
+                    />
+                  </label>
+                )}
               </div>
             </div>
           );
@@ -145,6 +159,16 @@ export default function DocumentList({ profile, onUploaded }) {
       </div>
 
       {viewing && <DocumentViewer label={viewing.label} doc={viewing.doc} onClose={() => setViewing(null)} />}
+      {camera && (
+        <SelfieCamera
+          onClose={() => setCamera(null)}
+          onCapture={(file) => {
+            const d = camera;
+            setCamera(null);
+            handleFile(d, file);
+          }}
+        />
+      )}
     </>
   );
 }

@@ -4,7 +4,8 @@ export const DOCUMENTS = [
   { type: 'aadhaar', label: 'Aadhaar Card (Front)', accept: 'image/*,application/pdf', hint: 'The side with your photo' },
   { type: 'aadhaarBack', label: 'Aadhaar Card (Back)', accept: 'image/*,application/pdf', hint: 'The side with your address' },
   { type: 'drivingLicence', label: 'Driving License', accept: 'image/*,application/pdf' },
-  { type: 'selfie', label: 'Selfie', accept: 'image/*', capture: 'user', hint: 'Be in a well lit place to click and upload' },
+  // The selfie is taken live with the camera (components/SelfieCamera.jsx), never picked from files.
+  { type: 'selfie', label: 'Selfie', accept: 'image/*', camera: true, hint: 'Taken with your camera — be in a well-lit place' },
 ];
 
 // Each document is reviewed on its own. `doc` is the profile's entry for that type (or undefined if

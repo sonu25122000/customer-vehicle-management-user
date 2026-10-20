@@ -12,6 +12,8 @@ export const labelClass = 'text-xs font-semibold text-slate-600';
 // Name / email editor for the profile page. The mobile number is shown but can't be edited — it's the
 // customer's login. Saving goes through PATCH /portal/profile, which keeps every change in the
 // customer's edit history.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 'Save Changes', showEmail = true }) {
   const { setCustomer } = useAuth();
   const [form, setForm] = useState({
@@ -24,6 +26,10 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (showEmail && !EMAIL_RE.test(form.email.trim())) {
+      toast.error(form.email.trim() ? 'Enter a valid email address' : 'Email is required');
+      return;
+    }
     if (unchanged) {
       onSaved?.(initial, false);
       return;
@@ -70,13 +76,16 @@ export default function ProfileForm({ initial, onSaved, onCancel, submitLabel = 
       </label>
       {showEmail && (
         <label className="flex flex-col gap-1.5">
-          <span className={labelClass}>Email (optional)</span>
+          <span className={labelClass}>Email</span>
           <input
             className={inputClass}
             type="email"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+            required
+            maxLength={254}
             autoComplete="email"
+            placeholder="you@example.com"
           />
         </label>
       )}

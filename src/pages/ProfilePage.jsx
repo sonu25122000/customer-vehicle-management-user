@@ -7,9 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ProfileForm from '../components/ProfileForm';
 import StatusChip from '../components/StatusChip';
+import SelfieCamera from '../components/SelfieCamera';
 import DocumentList from '../components/DocumentList';
 import { DOCUMENTS, verificationMessage, verificationSummary } from '../utils/documents';
-import { compressImage } from '../utils/compressImage';
+import { compressImage, uploadSizeError } from '../utils/compressImage';
 import {
   CameraIcon,
   PencilIcon,
@@ -32,15 +33,10 @@ function initials(name = '') {
     .join('');
 }
 
-// Logout is a text link, not a button — clearly readable, but not prominent.
-const LOGOUT_LINK_CLASS =
-  'cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold text-slate-600 underline-offset-4 transition-colors hover:text-red-600 hover:underline';
-
-const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Avatar with a progress ring showing how many of the verification documents are verified. Shows the
-// customer's profile picture when they've uploaded one; the camera button picks a new one.
+// customer's profile picture when they've uploaded one; the camera button opens the camera for a new one.
 function Avatar({ name, progress, photoVersion, uploading, onPick }) {
   const r = 46;
   const c = 2 * Math.PI * r;
@@ -76,7 +72,11 @@ function Avatar({ name, progress, photoVersion, uploading, onPick }) {
           </span>
         )}
       </div>
-      <label
+      {/* Opens the camera (SelfieCamera) — the profile photo is taken live, not picked from files. */}
+      <button
+        type="button"
+        onClick={onPick}
+        disabled={uploading}
         className={`absolute bottom-0.5 right-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-white text-accent-600 shadow-md ring-1 ring-slate-200 transition-colors hover:bg-accent-50 ${
           uploading ? 'pointer-events-none opacity-60' : 'cursor-pointer'
         }`}
@@ -84,18 +84,7 @@ function Avatar({ name, progress, photoVersion, uploading, onPick }) {
       >
         <CameraIcon className="h-4.5 w-4.5" />
         <span className="sr-only">{photoVersion ? 'Change profile photo' : 'Add a profile photo'}</span>
-        <input
-          type="file"
-          accept={PHOTO_TYPES.join(',')}
-          className="sr-only"
-          disabled={uploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            e.target.value = '';
-            if (file) onPick(file);
-          }}
-        />
-      </label>
+      </button>
     </div>
   );
 }
@@ -212,6 +201,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [takingPhoto, setTakingPhoto] = useState(false);
 
   // The picture is shrunk in the browser first, then has to be an image under 2 MB.
   async function handlePhoto(file) {
@@ -222,8 +212,9 @@ export default function ProfilePage() {
     setPhotoBusy(true);
     try {
       const small = await compressImage(file, { maxDimension: 800, targetBytes: 500 * 1024 });
-      if (small.size > MAX_PHOTO_BYTES) {
-        toast.error('This photo is too large — the maximum is 2 MB');
+      const sizeError = uploadSizeError(small);
+      if (sizeError) {
+        toast.error(sizeError);
         return;
       }
       const saved = await uploadProfilePhoto(small);
@@ -279,25 +270,30 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10 lg:px-8">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-extrabold text-primary sm:text-2xl">My Profile</h1>
-        {/* Desktop only — on phones/tablets Logout lives in the hamburger menu (Navbar). */}
-        <button type="button" onClick={handleLogout} className={`${LOGOUT_LINK_CLASS} hidden lg:inline-flex`}>
-          <LogoutIcon className="h-4 w-4" /> Logout
-        </button>
-      </div>
+      <h1 className="text-xl font-extrabold text-primary sm:text-2xl">My Profile</h1>
 
       {/* Phone/tablet: one column. Desktop: summary card (sticky) on the left, the two sections on the right. */}
       <div className="mt-4 grid grid-cols-1 gap-8 lg:mt-6 lg:grid-cols-[320px_1fr] lg:items-start xl:grid-cols-[360px_1fr]">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-28">
-          <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:grid-cols-[1.3fr_1fr] lg:grid-cols-1">
+          <div className="relative grid grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:grid-cols-[1.3fr_1fr] lg:grid-cols-1">
+            {/* Desktop only: a quiet logout icon in the card's top-right corner. On phones/tablets Logout
+                lives in the hamburger menu (Navbar). */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Logout"
+              title="Logout"
+              className="absolute right-3 top-3 hidden h-9 w-9 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 lg:flex"
+            >
+              <LogoutIcon className="h-5 w-5" />
+            </button>
             <div className="flex flex-col items-center justify-center gap-3 px-5 py-6">
               <Avatar
                 name={profile.name}
                 progress={approvedCount / DOCUMENTS.length}
                 photoVersion={profile.photoVersion}
                 uploading={photoBusy}
-                onPick={handlePhoto}
+                onPick={() => setTakingPhoto(true)}
               />
               {profile.photoVersion && (
                 <button
@@ -430,6 +426,18 @@ export default function ProfilePage() {
             }}
           />
         </Modal>
+      )}
+
+      {takingPhoto && (
+        <SelfieCamera
+          title="Take a profile photo"
+          hint="Face the camera in a well-lit place. This is the picture shown on your profile."
+          onClose={() => setTakingPhoto(false)}
+          onCapture={(file) => {
+            setTakingPhoto(false);
+            handlePhoto(file);
+          }}
+        />
       )}
 
       {changingPassword && (

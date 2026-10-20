@@ -1,39 +1,67 @@
-// Client-side image compression via the Canvas API — no external dependency, matching this
-// project's pattern of hand-building small utilities (see DateRangeCalendar) rather than
-// pulling in a library. Any image, regardless of original size, gets resized/re-encoded down
-// toward ~1-1.5MB before it's ever sent to the server; the backend's own size cap (see
-// backend/src/middleware/upload.js) is the final backstop for anything this can't shrink
-// enough (e.g. a non-image PDF, or compression failing for any reason).
-export async function compressImage(
-  file,
-  { maxDimension = 1920, targetBytes = 1.4 * 1024 * 1024, initialQuality = 0.85, minQuality = 0.5, mimeType = 'image/jpeg' } = {}
-) {
-  if (!file || !file.type?.startsWith('image/')) return file; // PDFs and non-images pass through untouched
-  if (file.size <= targetBytes) return file; // already small enough, don't bother re-encoding
+// Client-side image compression via the Canvas API — no external dependency. Every photo uploaded from
+// the site ends up at most MAX_PHOTO_BYTES (1.5 MB): anything bigger is re-encoded as JPEG at a lower
+// quality, and if that isn't enough it's scaled down step by step until it fits. PDFs pass through
+// untouched (they can't be compressed here; the backend caps them at 2 MB). The backend also refuses
+// photos over 1.5 MB (middleware/upload.js), as a backstop.
+export const MAX_PHOTO_BYTES = 1.5 * 1024 * 1024;
+// Aim a little under the limit.
+const TARGET_BYTES = 1.4 * 1024 * 1024;
+const QUALITIES = [0.85, 0.75, 0.65, 0.55];
+const SCALE_STEP = 0.8;
+const MIN_DIMENSION = 480;
 
+function toBlob(canvas, quality) {
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+}
+
+// The image redrawn at most `maxDimension` px on its longest side, re-encoded as JPEG under `targetBytes`.
+// Returns the original file when it's already small enough, isn't an image, or the browser can't read it.
+export async function compressImage(file, { maxDimension = 1920, targetBytes = TARGET_BYTES } = {}) {
+  if (!file || !file.type?.startsWith('image/')) return file;
+  if (file.size <= targetBytes) return file;
+
+  let bitmap;
   try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close?.();
-
-    let quality = initialQuality;
-    let blob = null;
-    do {
-      // eslint-disable-next-line no-await-in-loop
-      blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality));
-      if (!blob || blob.size <= targetBytes) break;
-      quality -= 0.1;
-    } while (quality >= minQuality);
-
-    if (!blob || blob.size >= file.size) return file; // compression didn't help — keep the original
-
-    const newName = file.name.replace(/\.\w+$/, '.jpg');
-    return new File([blob], newName, { type: mimeType, lastModified: Date.now() });
+    bitmap = await createImageBitmap(file);
   } catch {
-    return file; // any failure falls back to the original file; the backend cap is the backstop
+    return file; // unreadable here — the size check before upload decides
   }
+  try {
+    let dimension = Math.min(maxDimension, Math.max(bitmap.width, bitmap.height));
+    let smallest = null;
+    for (;;) {
+      const scale = dimension / Math.max(bitmap.width, bitmap.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      for (const quality of QUALITIES) {
+        // eslint-disable-next-line no-await-in-loop
+        const blob = await toBlob(canvas, quality);
+        if (blob && (!smallest || blob.size < smallest.size)) smallest = blob;
+        if (blob && blob.size <= targetBytes) {
+          return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+        }
+      }
+      if (dimension <= MIN_DIMENSION) break;
+      dimension = Math.max(MIN_DIMENSION, Math.round(dimension * SCALE_STEP));
+    }
+    return smallest && smallest.size < file.size
+      ? new File([smallest], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() })
+      : file;
+  } finally {
+    bitmap.close?.();
+  }
+}
+
+// '' when the file can be uploaded, otherwise the message to show: photos up to 1.5 MB, PDFs up to 2 MB.
+export function uploadSizeError(file) {
+  const isImage = file?.type?.startsWith('image/');
+  const limit = isImage ? MAX_PHOTO_BYTES : 2 * 1024 * 1024;
+  if (!file || file.size <= limit) return '';
+  return isImage
+    ? "This photo is too large even after compressing — please use a smaller one (max 1.5 MB)."
+    : 'This PDF is too large — the maximum is 2 MB.';
 }

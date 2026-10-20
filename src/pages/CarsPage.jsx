@@ -28,11 +28,27 @@ const FILTER_GROUPS = [
 const valueOf = (group, car) => (group.get ? group.get(car) : car[group.key]);
 const EMPTY_FILTERS = Object.fromEntries(FILTER_GROUPS.map((g) => [g.key, []]));
 
+// What a day with the car costs, so cars priced by the hour, by the day or both compare fairly: the daily
+// price, or 24 hours at the hourly price when there's no daily one. null when it has no price.
+function dayCost(car) {
+  if (car.pricePerDay) return car.pricePerDay;
+  return car.pricePerHour ? car.pricePerHour * 24 : null;
+}
+
+// Price sorts: cheapest/dearest first by day cost (then by hourly price); cars without a price go last.
+function byPrice(direction) {
+  return (a, b) => {
+    const da = dayCost(a);
+    const db = dayCost(b);
+    if (da === null || db === null) return (da === null) - (db === null);
+    return direction * (da - db || (a.pricePerHour || 0) - (b.pricePerHour || 0));
+  };
+}
+
 function sortCars(cars, sort) {
-  const price = (c) => c.pricePerDay || Number.POSITIVE_INFINITY;
   const list = [...cars];
-  if (sort === 'priceLow') list.sort((a, b) => price(a) - price(b));
-  else if (sort === 'priceHigh') list.sort((a, b) => (b.pricePerDay || 0) - (a.pricePerDay || 0));
+  if (sort === 'priceLow') list.sort(byPrice(1));
+  else if (sort === 'priceHigh') list.sort(byPrice(-1));
   else if (sort === 'newest') list.sort((a, b) => (b.year || 0) - (a.year || 0));
   else list.sort((a, b) => (b.rating?.avg || 0) - (a.rating?.avg || 0) || (b.rating?.count || 0) - (a.rating?.count || 0));
   return list;
