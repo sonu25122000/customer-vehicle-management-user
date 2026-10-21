@@ -10,6 +10,7 @@ import InstagramSection from '../components/InstagramSection';
 import FaqSection from '../components/FaqSection';
 import NewsletterSection from '../components/NewsletterSection';
 import WhyBookSection from '../components/WhyBookSection';
+import PricingNote from '../components/PricingNote';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import {
   CarIcon,
@@ -73,11 +74,11 @@ function MetricsBand() {
 function FeaturedCars() {
   const navigate = useNavigate();
   const [{ startDate, endDate }] = useTripDates();
-  // The last finished fetch, keyed by the dates it was for (still loading while they differ).
+  // The last finished fetch and the dates it was for.
   const [result, setResult] = useState({ key: null, cars: [] });
   const [search, setSearch] = useState('');
-  const key = `${startDate}|${endDate}`;
-  const cars = result.key === key ? result.cars : null;
+  // While new dates load, keep showing the last cars (no flash of empty placeholders).
+  const cars = result.key ? result.cars : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -131,6 +132,7 @@ function FeaturedCars() {
         </div>
 
         <OffersStrip className="mt-6" />
+        <PricingNote className="mt-4" />
 
         {cars !== null && cars.length === 0 ? (
           <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">

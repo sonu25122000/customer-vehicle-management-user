@@ -4,6 +4,7 @@ import Carousel from '../components/Carousel';
 import EnquiryBar from '../components/EnquiryBar';
 import CarPrice from '../components/CarPrice';
 import CallButton from '../components/CallButton';
+import PricingNote from '../components/PricingNote';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { ArrowLeftIcon, CarIcon, FuelIcon, GearIcon, StarIcon, CalendarIcon, QuoteIcon, MapPinIcon, ArrowRightIcon } from '../components/icons';
 import { fetchVehicle, fetchVehicleReviews } from '../api/portal';
@@ -226,6 +227,7 @@ export default function CarDetailPage() {
               <span className="text-sm text-primary-100">Price</span>
               <CarPrice car={car} dark />
             </div>
+            <PricingNote open className="mt-3" />
           </div>
 
           <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">

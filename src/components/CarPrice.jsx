@@ -9,7 +9,7 @@ export default function CarPrice({ car, dark = false, className = '' }) {
   ].filter(Boolean);
 
   if (!rates.length) {
-    return <p className={`text-sm font-semibold ${dark ? 'text-white' : 'text-slate-500'} ${className}`}>Price on request</p>;
+    return <p className={`text-sm font-semibold ${dark ? 'text-white' : 'text-slate-500'} ${className}`}>Click on Book Now for price</p>;
   }
   return (
     <div className={`flex flex-wrap items-baseline gap-y-1 ${className}`}>

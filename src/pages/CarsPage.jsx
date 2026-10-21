@@ -5,6 +5,7 @@ import CarCard from '../components/CarCard';
 import OffersStrip from '../components/OffersStrip';
 import EnquiryBar from '../components/EnquiryBar';
 import CallButton from '../components/CallButton';
+import PricingNote from '../components/PricingNote';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CarIcon, SearchIcon, XIcon, FilterIcon, ListIcon, GridIcon } from '../components/icons';
 import { parkingArea } from '../utils/location';
@@ -122,7 +123,8 @@ export default function CarsPage() {
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('list');
   const [showFilters, setShowFilters] = useState(false);
-  const cars = result.key === key ? result.cars : null;
+  // While new dates/search load, keep showing the last list (no flash of empty placeholders).
+  const cars = result.key ? result.cars : null;
   const failed = result.key === key && result.failed;
 
   // Debounce typing into the URL.
@@ -192,6 +194,7 @@ export default function CarsPage() {
         </div>
 
         <OffersStrip className="mt-6" />
+        <PricingNote className="mt-4" />
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
           <aside className={`${showFilters ? 'block' : 'hidden'} lg:block`}>

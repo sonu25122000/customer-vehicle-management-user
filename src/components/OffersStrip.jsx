@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { fetchOffers } from '../api/portal';
 import { formatMoney } from '../utils/format';
-import { ChevronLeftIcon, ChevronRightIcon, TagIcon } from './icons';
+import toast from 'react-hot-toast';
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, TagIcon } from './icons';
 
 // Expiry is an exact moment (not a calendar date like trip dates), so show it in the visitor's own timezone.
 function formatExpiry(value) {
@@ -25,6 +26,25 @@ function offerDetails(o) {
     .join(' · ');
 }
 
+// Puts the code on the clipboard — the Clipboard API where allowed, otherwise the old select-and-copy.
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const done = document.execCommand('copy');
+    input.remove();
+    return done;
+  }
+}
+
 // Coupons the team marked "Publicly visible" in the admin portal, as coupon tickets in a single row that
 // scrolls sideways — the section stays one ticket tall however many offers there are. Nothing is cut
 // off: each ticket shows its whole code and details. Renders nothing when there are no offers.
@@ -32,6 +52,17 @@ export default function OffersStrip({ className = '' }) {
   const [offers, setOffers] = useState([]);
   const rowRef = useRef(null);
   const [scroll, setScroll] = useState({ left: false, right: false });
+  const [copied, setCopied] = useState(null); // the offer whose code was just copied
+
+  async function copyCode(o) {
+    if (await copyText(o.code)) {
+      setCopied(o._id);
+      toast.success(`Code ${o.code} copied`);
+      setTimeout(() => setCopied((id) => (id === o._id ? null : id)), 2000);
+    } else {
+      toast.error('Could not copy — please select the code instead');
+    }
+  }
 
   useEffect(() => {
     fetchOffers()
@@ -90,7 +121,22 @@ export default function OffersStrip({ className = '' }) {
                 </div>
                 {/* Code + details */}
                 <div className="min-w-0 flex-1 px-3 py-2">
-                  <p className="break-all font-mono text-sm font-extrabold tracking-wider text-primary">{o.code}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 break-all font-mono text-sm font-extrabold tracking-wider text-primary">{o.code}</p>
+                    <button
+                      type="button"
+                      onClick={() => copyCode(o)}
+                      aria-label={`Copy code ${o.code}`}
+                      className={`inline-flex flex-shrink-0 cursor-pointer items-center gap-1 rounded-md px-2 py-0.5 text-[0.7rem] font-bold ring-1 transition-colors ${
+                        copied === o._id
+                          ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+                          : 'bg-accent-50 text-accent-700 ring-accent-200 hover:bg-accent-100'
+                      }`}
+                    >
+                      {copied === o._id ? <CheckIcon className="h-3.5 w-3.5" /> : <CopyIcon className="h-3.5 w-3.5" />}
+                      {copied === o._id ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
                   {details && <p className="mt-0.5 text-[0.7rem] leading-snug text-slate-600">{details}</p>}
                   <p className="mt-0.5 text-[0.65rem] text-slate-400">Valid till {formatExpiry(o.expiresAt)}</p>
                 </div>

@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageLayout from './components/PageLayout';
 import { WhatsAppFab } from './components/WhatsAppButton';
+import { EnquiryModalHost } from './components/EnquiryModal';
 import HomePage from './pages/HomePage';
 import { LoginPage, SignupPage, ChangePasswordPage, ForgotPasswordPage, ResetPasswordPage } from './pages/AuthPages';
 import ProfilePage from './pages/ProfilePage';
@@ -42,6 +43,8 @@ export default function App() {
           error: { iconTheme: { primary: '#dc2626', secondary: '#fff' } },
         }}
       />
+      {/* The car "Book Now" pop-up — here, not in the car cards, so it stays open when the dates change. */}
+      <EnquiryModalHost />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
