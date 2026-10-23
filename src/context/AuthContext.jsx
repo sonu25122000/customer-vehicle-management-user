@@ -23,6 +23,14 @@ export function AuthProvider({ children }) {
     return c;
   }, []);
 
+  // Login with the code emailed to the account (no password).
+  const loginWithCode = useCallback(async (mobile, code) => {
+    const c = await portal.loginWithCode(mobile, code);
+    setSignedOut(false);
+    setCustomer(c);
+    return c;
+  }, []);
+
   const signup = useCallback(async (payload) => {
     const c = await portal.signup(payload);
     setSignedOut(false);
@@ -55,8 +63,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ customer, checking: customer === undefined, signedOut, setCustomer, login, signup, logout, changePassword, resetPassword }),
-    [customer, signedOut, login, signup, logout, changePassword, resetPassword]
+    () => ({ customer, checking: customer === undefined, signedOut, setCustomer, login, loginWithCode, signup, logout, changePassword, resetPassword }),
+    [customer, signedOut, login, loginWithCode, signup, logout, changePassword, resetPassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

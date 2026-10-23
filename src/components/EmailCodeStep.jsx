@@ -14,8 +14,20 @@ function countdown(until, now) {
 
 // Entering the 6-digit code emailed to verify an address (signup, or changing the profile email).
 // `sent` is { expiresAt, resendAt } from the server. onSubmit(code) / onResend() are async; onBack goes
-// back to change the email. A spam-folder reminder is always shown — codes sometimes land there.
-export default function EmailCodeStep({ email, sent, onSubmit, onResend, onBack, submitLabel = 'Verify', busy = false, code, onCodeChange }) {
+// back to change the email (labelled backLabel). A spam-folder reminder is always shown — codes sometimes
+// land there.
+export default function EmailCodeStep({
+  email,
+  sent,
+  onSubmit,
+  onResend,
+  onBack,
+  submitLabel = 'Verify',
+  backLabel = 'Change email',
+  busy = false,
+  code,
+  onCodeChange,
+}) {
   const [now, setNow] = useState(() => Date.now());
   const [resending, setResending] = useState(false);
 
@@ -74,7 +86,7 @@ export default function EmailCodeStep({ email, sent, onSubmit, onResend, onBack,
 
       <div className="flex items-center justify-between text-sm">
         <button type="button" onClick={onBack} disabled={busy} className="cursor-pointer font-semibold text-gray-500 hover:text-gray-800 hover:underline">
-          Change email
+          {backLabel}
         </button>
         <button
           type="button"

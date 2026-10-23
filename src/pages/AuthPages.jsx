@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { errorMessage } from '../api/client';
-import { checkResetToken, forgotPassword, sendSignupEmailCode } from '../api/portal';
+import { checkResetToken, forgotPassword, sendLoginEmailCode, sendSignupEmailCode } from '../api/portal';
 import EmailCodeStep from '../components/EmailCodeStep';
 import { whatsappLink } from '../utils/contact';
 import { UserIcon, LockIcon, EyeIcon, PhoneIcon, MailIcon, ShieldCheckIcon, ArrowLeftIcon, CarIcon } from '../components/icons';
@@ -119,18 +119,81 @@ function SubmitButton({ loading, children }) {
   );
 }
 
+// "+91 | 98765 43210" — the mobile number both ways of logging in start with.
+function MobileField({ value, onChange, autoFocus }) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-sm font-medium text-gray-700">Mobile Number</span>
+      <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 transition-colors focus-within:border-accent-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-accent-100">
+        <span className="flex items-center gap-1.5 border-r border-gray-200 py-3 pl-3 pr-2.5 text-sm font-semibold text-gray-500">
+          <PhoneIcon className="h-4 w-4 text-gray-400" /> +91
+        </span>
+        <input
+          type="tel"
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 10))}
+          required
+          pattern="[0-9]{10}"
+          title="10-digit mobile number"
+          autoFocus={autoFocus}
+          autoComplete="tel-national"
+          placeholder="10-digit mobile number"
+          className="w-full bg-transparent px-3 py-3 text-sm tracking-wide text-gray-900 outline-none"
+        />
+      </div>
+    </label>
+  );
+}
+
+function GetHelp() {
+  return (
+    <p className="mt-3 text-center text-xs text-gray-500">
+      Having trouble logging in?{' '}
+      <a
+        href={whatsappLink('Hi Roam Wheels! I need help logging in to my account.')}
+        target="_blank"
+        rel="noreferrer"
+        className="font-semibold text-accent-600 hover:underline"
+      >
+        Get help
+      </a>
+    </p>
+  );
+}
+
+const switchClass = 'cursor-pointer font-semibold text-accent-600 hover:underline';
+
+// Login: by default with a 6-digit code emailed to the account (no password to remember) — mobile
+// number -> Get OTP -> enter the code. "Log in using Password" switches to the mobile + password form.
 export function LoginPage() {
-  const { customer, login } = useAuth();
+  const { customer, login, loginWithCode } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [mobile, setMobile] = useState('');
+  const [mode, setMode] = useState('otp'); // 'otp' | 'password'
+  const [mobile, setMobile] = useState(() => (/^[0-9]{10}$/.test(params.get('mobile') || '') ? params.get('mobile') : ''));
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  // After "Get OTP": { email (masked), expiresAt, resendAt }.
+  const [sent, setSent] = useState(null);
+  const [code, setCode] = useState('');
   const next = safeNext(params.get('next'));
+  const signupLink = `/signup${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`;
 
   if (customer) return <Navigate to={customer.mustChangePassword ? `/change-password?next=${encodeURIComponent(next)}` : next} replace />;
 
-  async function handleSubmit(e) {
+  function welcome(c) {
+    toast.success(`Welcome back, ${c.name.split(' ')[0]}!`);
+    navigate(next, { replace: true });
+  }
+
+  function switchToPassword() {
+    setMode('password');
+    setSent(null);
+    setCode('');
+  }
+
+  async function handlePasswordLogin(e) {
     e.preventDefault();
     setLoading(true);
     try {
@@ -140,8 +203,7 @@ export function LoginPage() {
         navigate(`/change-password?next=${encodeURIComponent(next)}`, { replace: true });
         return;
       }
-      toast.success(`Welcome back, ${c.name.split(' ')[0]}!`);
-      navigate(next, { replace: true });
+      welcome(c);
     } catch (err) {
       toast.error(errorMessage(err, 'Login failed'));
     } finally {
@@ -149,46 +211,144 @@ export function LoginPage() {
     }
   }
 
-  return (
-    <AuthShell
-      title="Guest Login"
-      subtitle="Log in to book cars and see your trips"
-      footer={
-        <>
-          New to Roam Wheels?{' '}
-          <Link to={`/signup${params.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-semibold text-accent-600 hover:underline">
-            Create an account
-          </Link>
-        </>
+  async function requestCode() {
+    const result = await sendLoginEmailCode(mobile);
+    setSent(result);
+    setCode('');
+    return result;
+  }
+
+  async function handleGetOtp(e) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await requestCode();
+    } catch (err) {
+      const errCode = err?.response?.data?.code;
+      if (errCode === 'NO_EMAIL') {
+        toast("There's no email on this account yet — please log in with your password.", { icon: '🔑' });
+        switchToPassword();
+      } else if (errCode === 'NO_ACCOUNT' || errCode === 'SIGNUP_REQUIRED') {
+        toast.error(errorMessage(err));
+        navigate(signupLink);
+      } else {
+        toast.error(errorMessage(err, 'Could not send the OTP'));
       }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="Mobile Number" icon={PhoneIcon}>
-          <input
-            type="tel"
-            inputMode="numeric"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-            required
-            pattern="[0-9]{10}"
-            title="10-digit mobile number"
-            autoFocus
-            autoComplete="tel-national"
-            placeholder="10-digit mobile number"
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Password" icon={LockIcon}>
-          <PasswordInput value={password} onChange={setPassword} autoComplete="current-password" />
-        </Field>
-        <Link
-          to={`/forgot-password${mobile.length === 10 ? `?mobile=${mobile}` : ''}`}
-          className="-mt-2 self-end text-sm font-semibold text-accent-600 hover:underline"
-        >
-          Forgot password?
-        </Link>
-        <SubmitButton loading={loading}>{loading ? 'Logging in...' : 'Log In'}</SubmitButton>
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function resendCode() {
+    try {
+      await requestCode();
+      toast.success('A new OTP is on its way');
+    } catch (err) {
+      toast.error(errorMessage(err, 'Could not send the OTP'));
+    }
+  }
+
+  async function verify(otp) {
+    if (loading) return;
+    setLoading(true);
+    try {
+      welcome(await loginWithCode(mobile, otp));
+    } catch (err) {
+      toast.error(errorMessage(err, 'Login failed'));
+      setCode('');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Step 2: the code. Logs in as soon as all 6 digits are in.
+  if (mode === 'otp' && sent) {
+    return (
+      <AuthShell
+        title="Verify with OTP"
+        subtitle={`Sent to the email on your account for +91 ${mobile}`}
+        footer={
+          <>
+            Log in using{' '}
+            <button type="button" onClick={switchToPassword} className={switchClass}>
+              Password
+            </button>
+          </>
+        }
+      >
+        <EmailCodeStep
+          email={sent.email}
+          sent={sent}
+          code={code}
+          onCodeChange={(value) => {
+            setCode(value);
+            if (value.length === 6) verify(value);
+          }}
+          busy={loading}
+          submitLabel="Verify & Log In"
+          backLabel="Change number"
+          onSubmit={verify}
+          onResend={resendCode}
+          onBack={() => setSent(null)}
+        />
+        <GetHelp />
+      </AuthShell>
+    );
+  }
+
+  const footer = (
+    <>
+      New to Roam Wheels?{' '}
+      <Link to={signupLink} className="font-semibold text-accent-600 hover:underline">
+        Create an account
+      </Link>
+    </>
+  );
+
+  if (mode === 'password') {
+    return (
+      <AuthShell title="Login with Password" subtitle="Log in to book cars and see your trips" footer={footer}>
+        <form onSubmit={handlePasswordLogin} className="flex flex-col gap-4">
+          <MobileField value={mobile} onChange={setMobile} autoFocus={!mobile} />
+          <Field label="Password" icon={LockIcon}>
+            <PasswordInput value={password} onChange={setPassword} autoComplete="current-password" />
+          </Field>
+          <Link
+            to={`/forgot-password${mobile.length === 10 ? `?mobile=${mobile}` : ''}`}
+            className="-mt-2 self-end text-sm font-semibold text-accent-600 hover:underline"
+          >
+            Forgot password?
+          </Link>
+          <SubmitButton loading={loading}>{loading ? 'Logging in...' : 'Log In'}</SubmitButton>
+        </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don&apos;t remember it?{' '}
+          <button type="button" onClick={() => setMode('otp')} className={switchClass}>
+            Log in with OTP
+          </button>
+        </p>
+      </AuthShell>
+    );
+  }
+
+  // Step 1: the mobile number.
+  return (
+    <AuthShell title="Login" subtitle="No password needed — we'll email you a one-time code" footer={footer}>
+      <form onSubmit={handleGetOtp} className="flex flex-col gap-4">
+        <MobileField value={mobile} onChange={setMobile} autoFocus />
+        <p className="-mt-2 flex items-start gap-1.5 text-xs text-gray-500">
+          <MailIcon className="mt-px h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+          The OTP goes to the email address on your Roam Wheels account.
+        </p>
+        <SubmitButton loading={loading}>{loading ? 'Sending OTP...' : 'Get OTP'}</SubmitButton>
       </form>
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Log in using{' '}
+        <button type="button" onClick={switchToPassword} className={switchClass}>
+          Password
+        </button>
+      </p>
+      <GetHelp />
     </AuthShell>
   );
 }

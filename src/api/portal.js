@@ -16,6 +16,17 @@ export function login(mobile, password) {
   return api.post('/portal/auth/login', { mobile, password }).then((res) => res.data.customer);
 }
 
+// Login without a password, step 1: emails a 6-digit code to the account's email — resolves to
+// { email (masked), expiresAt, resendAt }.
+export function sendLoginEmailCode(mobile) {
+  return api.post('/portal/auth/login/email-code', { mobile }).then((res) => res.data);
+}
+
+// Step 2: logs in with that code — resolves to the customer.
+export function loginWithCode(mobile, code) {
+  return api.post('/portal/auth/login/verify', { mobile, code }).then((res) => res.data.customer);
+}
+
 export function logout() {
   return api.post('/portal/auth/logout');
 }
